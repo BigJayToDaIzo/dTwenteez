@@ -6,6 +6,11 @@ fn main() {
     // 4)display roll total, and individual rolls in brackets
     // 5)80% code coverage in test framework
     //
+    // MVP 2.0
+    // logging to text
+    // MVP 3.0
+    // real logging system
+    //
     // Task 1: Lay scaffold for testing
     // Task 2: Display greeting
     // Task 3: Capture user input
