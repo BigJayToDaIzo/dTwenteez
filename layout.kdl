@@ -1,0 +1,118 @@
+layout {
+  cwd "/home/jm/Projects/learn/rust/rustlings"
+  default_tab_template {
+    children
+    pane size=1 borderless=true {
+      plugin location="zjstatus" {
+        color_section_fg "#f265b5"
+        color_section_bg "#37f499"
+        color_tab_norm_fg "#f265b5"
+        color_tab_norm_bg "#33c57f"
+        color_tab_norm_sync "#f265b5"
+        color_tab_active_fg "#000000" 
+        color_tab_active_bg "#37f499" 
+        color_tab_active_fs "#f265b5"
+        color_tab_active_sync "#f265b5"
+        color_tab_trunc "#f265b5"
+
+        color_mode_fg "#333333"
+        color_mode_norm "#37f499"
+        color_mode_locked "#f265b5"
+        color_mode_session "#37f499"
+        color_mode_resize "#f265b5"
+        color_mode_pane "#37f499"
+        color_mode_tab "#37f499"
+        color_mode_scroll "#37f499"
+        color_mode_enter_search "#37f499"
+        color_mode_search "#37f499"
+        color_mode_rename_tab "#f265b5"
+        color_mode_rename_pane "#f265b5"
+        color_mode_move "#37f499"
+        color_mode_prompt "#37f499"
+
+        format_left   "{mode} #[fg=$section_fg,bold,$bg=section_bg]{session}"
+        format_center "{tabs}"
+        format_right  "{command_git_branch} {datetime}"
+        format_space  ""
+
+        border_enabled  "false"
+        border_char     "─"
+        border_position "top"
+        border_format   "#[fg=$green]{char}"
+
+        tab_display_count "3"
+        tab_normal   "#[fg=$tab_norm_fg,bg=$tab_norm_bg] {index}::{name} "
+        tab_normal_fullscreen "#[fg=$tab_norm_fg,bg=$tab_norm_bg] {index}::{name}  "
+        tab_normal_sync "#[fg=$tab_norm_sync] {index}::{name}  "
+        tab_active   "#[fg=$tab_active_fg,italic,bg=$tab_active_bg] {name} "
+        tab_active_fullscreen "#[fg=$tab_active_fg,italic,bg=$tab_active_bg] {name}  "
+        tab_active_sync "#[fg=$tab_active_sync,bold,italic] {name}  "
+        tab_separator "#[fg=$tab_trunc,bold,bg=$tab_norm_bg]󰩮"
+        tab_truncate_start_format "#[fg=$tab_trunc] ☾{count}.."
+        tab_truncate_end_format   "#[fg=$tab_trunc] ..{count}☽ "
+
+        notification_show_interval           "10"
+        notification_format_unread           "#[fg=$red]  #[fg=$blue] {message} "
+        notification_format_no_notifications "#[fg=$red]   "
+
+        mode_default_to_mode "locked"
+        mode_normal  "#[fg=$mode_fg,bg=$mode_norm]  UNLOCKED "
+        mode_locked "#[fg=$mode_fg,bg=$mode_locked]  LOCKED "
+        mode_session "#[fg=$mode_fg,bg=$mode_session] 󰹑 {name} "
+        mode_resize "#[fg=$mode_fg,bg=$mode_resize]  {name} "
+        mode_pane "#[fg=$mode_fg,bg=$mode_pane]  {name} "
+        mode_tab "#[fg=$mode_fg,bg=$mode_tab] ⭾ {name} "
+        mode_scroll "#[fg=$mode_fg,bg=$mode_scroll] 󰭜 {name} "
+        mode_enter_search "#[fg=$mode_fg,bg=$mode_enter_search]  {name} "
+        mode_search "#[fg=$mode_fg,bg=$mode_search]  {name} "
+        mode_rename_tab "#[fg=$mode_fg,bg=$mode_rename_tab] ⭾ {name} "
+        mode_rename_pane "#[fg=$mode_fg,bg=$mode_rename_pane]  {name} "
+        mode_move "#[fg=$mode_fg,bg=$mode_move]  {name} "
+        mode_prompt "#[fg=$mode_fg,bg=$mode_prompt]  {name} "
+
+        hide_frame_for_single_pane "true"
+        format_hide_on_overlength "true"
+        format_precedence "clr"
+
+
+        command_git_branch_command     "git rev-parse --abbrev-ref head"
+        command_git_branch_interval    "10"
+        command_git_branch_rendermode  "static"
+        command_git_branch_format      "#[fg=$section_fg] {stdout} "
+
+        datetime_format "  %A, %d %b %Y  %H:%M"
+        datetime_timezone "America/Chicago"
+        datetime        "#[fg=$section_fg,bold,bg=$tab_norm_bg]{format} "
+      }
+    }
+  }
+  // set cwd of current project on tab 
+  tab name=" Dev" cwd="/home/jm/Projects/personal/rust/d20"{
+    // tweak these splits
+    pane stacked=true {
+      pane command="nvim" {
+        start_suspended true
+        args "src/lib.rs"
+      }
+      pane command="nvim" {
+        // Cargo.TOML
+        start_suspended true
+        args "src/main.rs"
+      }
+    }
+    pane split_direction="vertical" size="40%" {
+      // watch
+      pane command="cargo" {
+        start_suspended true
+        args "run"
+      }
+      pane command="cargo" {
+        start_suspended true
+        args "test"
+      }
+    }
+  }
+  tab name="Lazy " {
+    pane command="lazygit"
+  }
+}
