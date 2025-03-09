@@ -1,56 +1,38 @@
 use std::env;
+use std::process;
 
 fn main() {
     println!("Welcome to best d20 roller of all tiem!1!");
     // We must isolate ONLY these 4 tasks to main, all else should be abstracted
     // It's ok to build it here, but it must be abstracted when main becomes large
-    // 1) Calling the command line parsing logic with
-    // argument values (if arg parsing isn't also
+    // 1) Calling the command line parsing logic with argument values (if arg parsing isn't also
     //    abstracted)
-    let mut args = env::args();
-    let mut c = Config::new(); // default config to build in the
+    // Kayla big brain stuffs 
+    // let args = env::args();
+    // let c = Config::new(); // default config to build in the
     // while below
-    args.next(); //ignore application path
+    // while let Some(arg) = args.next() {}
+    let args = env::args().collect();
+    let c = Config::build(args).unwrap_or_else(|err| {
+        // THING 1.2 we need to isolate and add
+        // detail to error handling as a whole
+        eprintln!("Problem parsing arguments: {err}");
+        process::exit(1);
+    });
+    dbg!(c.c1);
+
     // 2) Setting up configuration
-    for arg in args {
-        match arg.as_str() {
-            "-h" => c.h_opt = true,
-            "--help" => c.h_flag = true,
-            "-a" => {
-                c.advantage = true;
-                c.disadvantage = false;
-            }
-            "-d" => c.disadvantage = true,
-            x => {
-                println!("arg string broken with invalid argument: {x}");
-                c.h_opt = true;
-            }
-        }
-    }
-    if c.h_opt || c.h_flag {
-        // this will get much larger and need to be abstracted
-        println!("usage: d20 [-h | --help | -a | -d]");
-    }
-    dbg!(&c);
     // 3) Calling a run function in lib.rs
     // 4) Handling errors if run returns error
 }
 
-#[derive(Debug)]
 struct Config {
-    h_opt: bool,
-    h_flag: bool,
-    advantage: bool,
-    disadvantage: bool,
+    c1: String,
 }
 
 impl Config {
-    fn new() -> Config {
-        Config {
-            h_opt: false,
-            h_flag: false,
-            advantage: false,
-            disadvantage: false,
-        }
+    fn build(args: Vec<String>) -> Result<Config, &'static str> {
+        let c1 = args[1].to_string();
+        Ok(Config { c1 })
     }
 }
