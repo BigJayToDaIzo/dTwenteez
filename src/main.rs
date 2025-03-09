@@ -1,36 +1,38 @@
-// use std::env;
+use std::env;
+use std::process;
 
 fn main() {
-    // MVP in notebook
-    // 1)Ask user for #d20 to roll
-    // 2)Give user quit option
-    // 3)Handle input errors gracefully
-    // 4)display roll total, and individual rolls in brackets
-    // 5)80% code coverage in test framework
-    //
-    // MVP 2.0
-    // logging to text
-    // accept cli args
-    // let args: Vec<String> = env::args().collect();
-    // dbg!(&args);
-    // env::args good enough?  Need args_os robustosity?
-    // ex: d20 6d20 adv mod
-    // manual cli at first
-    // then on to crates.io to find something that already exists
-    // MVP 3.0
-    // real logging system
-    //
-    // Task 1: Lay scaffold for testing
-    // Task 2: Display greeting
-    // Task 3: Capture user input
-    // Task 4: display results of roll
-    // Task 5: Ask for next roll/quit
-    println!("d20 DN!");
+    println!("Welcome to best d20 roller of all tiem!1!");
     // We must isolate ONLY these 4 tasks to main, all else should be abstracted
     // It's ok to build it here, but it must be abstracted when main becomes large
     // 1) Calling the command line parsing logic with argument values (if arg parsing isn't also
     //    abstracted)
+    // Kayla big brain stuffs 
+    // let args = env::args();
+    // let c = Config::new(); // default config to build in the
+    // while below
+    // while let Some(arg) = args.next() {}
+    let args = env::args().collect();
+    let c = Config::build(args).unwrap_or_else(|err| {
+        // THING 1.2 we need to isolate and add
+        // detail to error handling as a whole
+        eprintln!("Problem parsing arguments: {err}");
+        process::exit(1);
+    });
+    dbg!(c.c1);
+
     // 2) Setting up configuration
     // 3) Calling a run function in lib.rs
     // 4) Handling errors if run returns error
+}
+
+struct Config {
+    c1: String,
+}
+
+impl Config {
+    fn build(args: Vec<String>) -> Result<Config, &'static str> {
+        let c1 = args[1].to_string();
+        Ok(Config { c1 })
+    }
 }
