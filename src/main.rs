@@ -9,8 +9,8 @@ fn main() {
     println!("That's not a deez nutz joke, n represents a the range [2/4/8/10/20/100]");
     // 1) Calling the command line parsing logic with
     let mut args = env::args();
-    let mut c = Config::new(); // default config to build in the
-    args.next(); //ignore application path
+    let mut c = Config::new(); // default config to build
+    args.next(); //discard application path
     // 2) Setting up configuration
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -24,14 +24,26 @@ fn main() {
                 c.advantage = false;
                 c.disadvantage = true;
             }
-            "-test" => {
+            "-s" => {
                 if let Some(arg) = args.next() {
-                    c.test1 = arg;
+                    if let Ok(sides) = arg.parse::<u32>() {
+                        c.sides = sides;
+                    }
                 }
             }
-            "-test2" => {
+
+            "-c" => {
                 if let Some(arg) = args.next() {
-                    c.test2 = arg;
+                    if let Ok(count) = arg.parse::<u32>() {
+                        c.count = count;
+                    }
+                }
+            }
+            "-m" => {
+                if let Some(arg) = args.next() {
+                    if let Ok(modifier) = arg.parse::<i32>() {
+                        c.modifier = modifier;
+                    }
                 }
             }
             x => {
@@ -42,7 +54,11 @@ fn main() {
     }
     if c.h_opt || c.h_flag {
         // this will get much larger and need to be abstracted
-        println!("usage: d20 [-h | --help | -a | -d]");
+        println!(
+            "usage: d20 [-h | --help | -a | -d | -c N | -s N | -m +|-N]
+** example d20 -a -c 1 -s 20 -m +9
+** Astarion rolls with advantage, one d20 with a +9 modifier"
+        );
     }
     dbg!(&c);
     // 3) Calling a run function in lib.rs
@@ -55,8 +71,9 @@ struct Config {
     h_flag: bool,
     advantage: bool,
     disadvantage: bool,
-    test1: String,
-    test2: String,
+    sides: u32,
+    count: u32,
+    modifier: i32,
 }
 
 impl Config {
@@ -66,8 +83,9 @@ impl Config {
             h_flag: false,
             advantage: false,
             disadvantage: false,
-            test1: String::new(),
-            test2: String::new(),
+            sides: 20,
+            count: 1,
+            modifier: 0,
         }
     }
 }
