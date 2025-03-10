@@ -1,3 +1,11 @@
+use rand::Rng;
+
+#[derive(Debug)]
+pub struct Roll {
+    pub final_roll: u32,
+    pub display: String,
+}
+
 #[derive(Debug)]
 pub struct Config {
     pub h_opt: bool,
@@ -80,10 +88,16 @@ impl Config {
             );
         }
     }
-    // pub fn roll(&self) -> Roll {
-    //     // how do we build the roll?
-    //     // lets start with a single d20 roll no modifiers
-    // }
+    pub fn roll(&self) -> Roll {
+        // rng stuffs
+        let mut rng = rand::rng();
+        let final_roll = rng.random_range(1..=self.sides);
+        Roll {
+            final_roll,
+            display: String::new(),
+        }
+        // build display
+    }
 }
 
 #[cfg(test)]
@@ -106,9 +120,10 @@ mod tests {
         assert!(c.disadvantage);
         assert_eq!(c.modifier, -2);
     }
-    // #[test]
-    // fn roll_single_d20_no_modifiers() {
-    //     let mut c = Config::default();
-    //     let roll = c.roll();
-    // }
+    #[test]
+    fn roll_single_d20_no_modifiers() {
+        let c = Config::default();
+        let roll = c.roll();
+        assert!((1..=20).contains(&roll.final_roll));
+    }
 }

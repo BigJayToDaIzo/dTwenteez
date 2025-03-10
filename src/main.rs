@@ -10,7 +10,9 @@ fn main() {
     let mut c = Config::default(); // default config to build
     // 2) Setting up configuration (ABSTRACT THIS NAO)
     c.build(&mut args);
-    // let roll = c.roll();
+    let roll = c.roll();
+    dbg!(&roll.final_roll);
+    dbg!(&roll.display);
     // 3) Calling a run function in lib.rs
     // 4) Handling errors if run returns error
 }
