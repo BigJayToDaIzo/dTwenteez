@@ -171,6 +171,14 @@ mod tests {
         assert_eq!(c.modifier, 13);
     }
     #[test]
+    fn neg_modifier_works() {
+        let mut c = Config::default();
+        let mut args = ["", "-c", "2", "-m", "-13"].iter().map(|s| s.to_string());
+        c.build(&mut args);
+        assert_eq!(c.count, 2);
+        assert_eq!(c.modifier, -13);
+    }
+    #[test]
     fn invalid_flag_warns_user_but_continues() {
         let mut c = Config::default();
         let mut args = ["", "-42069", "-s", "10", "-c", "2"]
@@ -188,6 +196,12 @@ mod tests {
         assert!((1..=20).contains(&roll.final_roll));
     }
     #[test]
+    fn roll_single_d2_no_modifiers() {
+        let mut c = Config::default();
+        let mut args = ["", "-s", "2"].iter().map(|s| s.to_string());
+        c.build(&mut args);
+    }
+    #[test]
     fn d20_no_modifiers_display() {
         // ex: [ 17 ] = 17
         let c = Config::default();
@@ -196,6 +210,7 @@ mod tests {
         let Some(cap) = regex.captures(&roll.display) else {
             panic!("display did not capture value");
         };
+        assert_eq!(cap.len(), 3); // cap[0] is entire haystack
         assert!((1..=20).contains(&cap["summation_detail"].parse::<u32>().unwrap()));
         assert!((1..=20).contains(&cap["total"].parse::<u32>().unwrap()));
         assert_eq!(&cap["summation_detail"], &cap["total"]);
