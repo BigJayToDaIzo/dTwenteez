@@ -92,9 +92,10 @@ impl Config {
         // rng stuffs
         let mut rng = rand::rng();
         let final_roll = rng.random_range(1..=self.sides);
+        let roll_string = format!("[ {final_roll} ] = {final_roll}");
         Roll {
             final_roll,
-            display: String::new(),
+            display: roll_string,
         }
         // build display
     }
@@ -103,6 +104,7 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use regex::Regex;
 
     #[test]
     fn new_works() {
@@ -114,16 +116,88 @@ mod tests {
     #[test]
     fn build_works() {
         let mut c = Config::default();
-        let mut args = ["", "-h", "-d", "-m", "-2"].iter().map(|s| s.to_string());
+        let mut args = [""].iter().map(|s| s.to_string());
+        c.build(&mut args);
+        assert!(!c.h_opt);
+    }
+    #[test]
+    fn help_opts_work() {
+        let mut c = Config::default();
+        let mut args = ["", "-h", "--help"].iter().map(|s| s.to_string());
         c.build(&mut args);
         assert!(c.h_opt);
+        assert!(c.h_flag);
+    }
+    #[test]
+    fn advantage_works() {
+        let mut c = Config::default();
+        let mut args = ["", "-h", "--help", "-a"].iter().map(|s| s.to_string());
+        c.build(&mut args);
+        assert!(c.h_opt);
+        assert!(c.h_flag);
+        assert!(c.advantage);
+        assert!(!c.disadvantage);
+    }
+    #[test]
+    fn disadvantage_works() {
+        let mut c = Config::default();
+        let mut args = ["", "-d"].iter().map(|s| s.to_string());
+        c.build(&mut args);
         assert!(c.disadvantage);
-        assert_eq!(c.modifier, -2);
+        assert!(!c.advantage);
+    }
+    #[test]
+    fn sides_works() {
+        let mut c = Config::default();
+        let mut args = ["", "-d", "-s", "10"].iter().map(|s| s.to_string());
+        c.build(&mut args);
+        assert!(c.disadvantage);
+        assert_eq!(c.sides, 10);
+    }
+    #[test]
+    fn count_works() {
+        let mut c = Config::default();
+        let mut args = ["", "-s", "10", "-c", "2"].iter().map(|s| s.to_string());
+        c.build(&mut args);
+        assert_eq!(c.sides, 10);
+        assert_eq!(c.count, 2);
+    }
+    #[test]
+    fn pos_modifier_works() {
+        let mut c = Config::default();
+        let mut args = ["", "-c", "2", "-m", "13"].iter().map(|s| s.to_string());
+        c.build(&mut args);
+        assert_eq!(c.count, 2);
+        assert_eq!(c.modifier, 13);
+    }
+    #[test]
+    fn invalid_flag_warns_user_but_continues() {
+        let mut c = Config::default();
+        let mut args = ["", "-42069", "-s", "10", "-c", "2"]
+            .iter()
+            .map(|s| s.to_string());
+        c.build(&mut args);
+        assert_eq!(c.sides, 10);
+        assert_eq!(c.count, 2);
+        assert!(c.h_opt);
     }
     #[test]
     fn roll_single_d20_no_modifiers() {
         let c = Config::default();
         let roll = c.roll();
         assert!((1..=20).contains(&roll.final_roll));
+    }
+    #[test]
+    fn d20_no_modifiers_display() {
+        // ex: [ 17 ] = 17
+        let c = Config::default();
+        let roll = c.roll();
+        let regex = Regex::new(r"\[ (?<summation_detail>\d{1,2}) \] = (?<total>\d{1,2})").unwrap();
+        let Some(cap) = regex.captures(&roll.display) else {
+            panic!("display did not capture value");
+        };
+        assert!((1..=20).contains(&cap["summation_detail"].parse::<u32>().unwrap()));
+        assert!((1..=20).contains(&cap["total"].parse::<u32>().unwrap()));
+        assert_eq!(&cap["summation_detail"], &cap["total"]);
     }
 }
