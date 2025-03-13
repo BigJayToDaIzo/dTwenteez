@@ -1,11 +1,3 @@
-use rand::Rng;
-
-#[derive(Debug)]
-pub struct Roll {
-    pub final_roll: u32,
-    pub display: String,
-}
-
 #[derive(Debug)]
 pub struct Config {
     pub h_opt: bool,
@@ -88,51 +80,40 @@ impl Config {
             );
         }
     }
-    pub fn roll(&self) -> Roll {
-        // rng stuffs
-        let mut rng = rand::rng();
-        let final_roll = rng.random_range(1..=self.sides);
-        let roll_string = format!("[ {final_roll} ] = {final_roll}");
-        Roll {
-            final_roll,
-            display: roll_string,
-        }
-        // build display
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use regex::Regex;
+
+    fn build_config(args: Vec<&str>) -> Config {
+        let mut c = Config::default();
+        let mut args = args.iter().map(|s| s.to_string());
+        c.build(&mut args);
+        c
+    }
 
     #[test]
     fn new_works() {
-        let c = Config::default();
+        let c = Config::new();
         assert_eq!(c.sides, 20);
         assert_eq!(c.count, 1);
         assert_eq!(c.modifier, 0);
     }
     #[test]
     fn build_works() {
-        let mut c = Config::default();
-        let mut args = [""].iter().map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec![""]);
         assert!(!c.h_opt);
     }
     #[test]
     fn help_opts_work() {
-        let mut c = Config::default();
-        let mut args = ["", "-h", "--help"].iter().map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec!["", "-h", "--help"]);
         assert!(c.h_opt);
         assert!(c.h_flag);
     }
     #[test]
     fn advantage_works() {
-        let mut c = Config::default();
-        let mut args = ["", "-h", "--help", "-a"].iter().map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec!["", "-h", "--help", "-a"]);
         assert!(c.h_opt);
         assert!(c.h_flag);
         assert!(c.advantage);
@@ -140,79 +121,39 @@ mod tests {
     }
     #[test]
     fn disadvantage_works() {
-        let mut c = Config::default();
-        let mut args = ["", "-d"].iter().map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec!["", "-d"]);
         assert!(c.disadvantage);
         assert!(!c.advantage);
     }
     #[test]
     fn sides_works() {
-        let mut c = Config::default();
-        let mut args = ["", "-d", "-s", "10"].iter().map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec!["", "-d", "-s", "10"]);
         assert!(c.disadvantage);
         assert_eq!(c.sides, 10);
     }
     #[test]
     fn count_works() {
-        let mut c = Config::default();
-        let mut args = ["", "-s", "10", "-c", "2"].iter().map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec!["", "-s", "10", "-c", "2"]);
         assert_eq!(c.sides, 10);
         assert_eq!(c.count, 2);
     }
     #[test]
     fn pos_modifier_works() {
-        let mut c = Config::default();
-        let mut args = ["", "-c", "2", "-m", "13"].iter().map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec!["", "-c", "2", "-m", "13"]);
         assert_eq!(c.count, 2);
         assert_eq!(c.modifier, 13);
     }
     #[test]
     fn neg_modifier_works() {
-        let mut c = Config::default();
-        let mut args = ["", "-c", "2", "-m", "-13"].iter().map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec!["", "-c", "2", "-m", "-13"]);
         assert_eq!(c.count, 2);
         assert_eq!(c.modifier, -13);
     }
     #[test]
     fn invalid_flag_warns_user_but_continues() {
-        let mut c = Config::default();
-        let mut args = ["", "-42069", "-s", "10", "-c", "2"]
-            .iter()
-            .map(|s| s.to_string());
-        c.build(&mut args);
+        let c = build_config(vec!["", "-42069", "-s", "10", "-c", "2"]);
         assert_eq!(c.sides, 10);
         assert_eq!(c.count, 2);
         assert!(c.h_opt);
-    }
-    #[test]
-    fn roll_single_d20_no_modifiers() {
-        let c = Config::default();
-        let roll = c.roll();
-        assert!((1..=20).contains(&roll.final_roll));
-    }
-    #[test]
-    fn roll_single_d2_no_modifiers() {
-        let mut c = Config::default();
-        let mut args = ["", "-s", "2"].iter().map(|s| s.to_string());
-        c.build(&mut args);
-    }
-    #[test]
-    fn d20_no_modifiers_display() {
-        // ex: [ 17 ] = 17
-        let c = Config::default();
-        let roll = c.roll();
-        let regex = Regex::new(r"\[ (?<summation_detail>\d{1,2}) \] = (?<total>\d{1,2})").unwrap();
-        let Some(cap) = regex.captures(&roll.display) else {
-            panic!("display did not capture value");
-        };
-        assert_eq!(cap.len(), 3); // cap[0] is entire haystack
-        assert!((1..=20).contains(&cap["summation_detail"].parse::<u32>().unwrap()));
-        assert!((1..=20).contains(&cap["total"].parse::<u32>().unwrap()));
-        assert_eq!(&cap["summation_detail"], &cap["total"]);
     }
 }
