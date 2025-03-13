@@ -48,6 +48,7 @@ impl Roll {
             }
             i32::MIN..0 => {
                 let modifier = c.modifier;
+                // we MUST ensure roll never goes below 1
                 if modifier + rt_roll < 1 {
                     rt_roll = 1;
                 } else {
@@ -63,7 +64,6 @@ impl Roll {
                 display.push_str(&final_string_appendage);
             }
         }
-        // we MUST ensure roll never goes below 1
         Roll {
             final_roll: rt_roll as u32,
             display,
@@ -129,13 +129,13 @@ mod test {
         let c = build_config(vec!["", "-m", "2"]);
         let roll = Roll::new(&c);
         let regex =
-            Regex::new(r"\[ (?<droll>\d{1,2}) \] mod: (?<modifier>\+\d{1,2}) = (?<total>\d{1,2})")
+            Regex::new(r"\[ (?<roll>\d{1,2}) \] mod: (?<modifier>\+\d{1,2}) = (?<total>\d{1,2})")
                 .unwrap();
         let Some(cap) = regex.captures(&roll.display) else {
             panic!("display didn't capture values")
         };
         assert_eq!(cap.len(), 4);
-        assert!((1..=c.sides).contains(&cap["droll"].parse::<u32>().unwrap()));
+        assert!((1..=c.sides).contains(&cap["roll"].parse::<u32>().unwrap()));
         assert_eq!(cap["modifier"].parse::<u32>().unwrap(), 2);
         assert!((1..=(c.sides + 2)).contains(&cap["total"].parse::<u32>().unwrap()));
     }
