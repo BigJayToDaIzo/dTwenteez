@@ -13,7 +13,7 @@ impl Roll {
         // this will evolve heavily
         // build display
         let mut display: String = String::from("[ ");
-        let mut rt_roll: i32 = 0;
+        let mut rt_roll = 0;
         if c.advantage {
             for _ in 0..c.count {
                 let roll1 = rng.random_range(1..=c.sides);
@@ -42,10 +42,6 @@ impl Roll {
         }
         // has modifier?
         match c.modifier {
-            0 => {
-                let final_string_appendage = format!("] = {rt_roll}");
-                display.push_str(&final_string_appendage);
-            }
             i32::MIN..0 => {
                 let modifier = c.modifier;
                 // we MUST ensure roll never goes below 1
@@ -55,6 +51,10 @@ impl Roll {
                     rt_roll += modifier;
                 }
                 let final_string_appendage = format!("] mod: {modifier} = {rt_roll}");
+                display.push_str(&final_string_appendage);
+            }
+            0 => {
+                let final_string_appendage = format!("] = {rt_roll}");
                 display.push_str(&final_string_appendage);
             }
             1..=i32::MAX => {
@@ -87,7 +87,7 @@ mod test {
     fn roll_d2_no_modifiers() {
         let c = build_config(vec!["", "-s", "2"]);
         let roll = Roll::new(&c);
-        assert!((1..=2).contains(&roll.final_roll));
+        assert!((1..=c.sides).contains(&roll.final_roll));
     }
     #[test]
     fn roll_d20_no_modifiers() {
@@ -125,7 +125,7 @@ mod test {
     }
     #[test]
     fn d20_pos_modifier_display() {
-        // [ 10 ] + mod: +2 = 12
+        // [ 10 ] mod: +2 = 12
         let c = build_config(vec!["", "-m", "2"]);
         let roll = Roll::new(&c);
         let regex =
@@ -139,9 +139,57 @@ mod test {
         assert_eq!(cap["modifier"].parse::<u32>().unwrap(), 2);
         assert!((1..=(c.sides + 2)).contains(&cap["total"].parse::<u32>().unwrap()));
     }
-    // #[test]
-    // fn d20_neg_modifier_display() {
-    //     // [ 10 ] - mod: -2 = 8
-    //     let c = build_config(vec!["", "-m", "-2"]);
-    // }
+    #[test]
+    fn d20_neg_modifier_display() {
+        // [ 10 ] mod: -2 = 8
+        let c = build_config(vec!["", "-m", "-2"]);
+        let roll = Roll::new(&c);
+        let regex =
+            Regex::new(r"\[ (?<roll>\d{1,2}) \] mod: (?<modifier>\-\d{1,2}) = (?<total>\d{1,2})")
+                .unwrap();
+        let Some(cap) = regex.captures(&roll.display) else {
+            panic!("display didn't capture values")
+        };
+        assert_eq!(cap.len(), 4);
+        assert!((1..=c.sides).contains(&cap["roll"].parse::<u32>().unwrap()));
+        assert_eq!(cap["modifier"].parse::<i32>().unwrap(), -2);
+        assert!((1..=(c.sides - 2)).contains(&cap["total"].parse::<u32>().unwrap()));
+    }
+    #[test]
+    fn neg_modifier_does_not_lower_roll_below_one() {
+        // [ 1 ] mod: -1 = 1
+        let c = build_config(vec!["", "-s", "2", "-m", "-2"]);
+        let roll = Roll::new(&c);
+        assert_eq!(roll.final_roll, 1);
+    }
+    #[test]
+    fn advantage_display_works() {
+        // [ [1,2] max: 2 ] = 2
+        let c = build_config(vec!["", "-a"]);
+        let roll = Roll::new(&c);
+        let regex = Regex::new(
+            r"\[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] max: (?<max>\d{1,2}) \] = (?<final>\d{1,2})",
+        )
+        .unwrap();
+        let Some(cap) = regex.captures(&roll.display) else {
+            panic!("display didn't capture values")
+        };
+        assert_eq!(cap.len(), 5);
+        assert_eq!(cap["max"], cap["final"]);
+    }
+    #[test]
+    fn disadvantage_display_works() {
+        // [ [1,2] max: 2 ] = 2
+        let c = build_config(vec!["", "-d"]);
+        let roll = Roll::new(&c);
+        let regex = Regex::new(
+            r"\[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] min: (?<min>\d{1,2}) \] = (?<final>\d{1,2})",
+        )
+        .unwrap();
+        let Some(cap) = regex.captures(&roll.display) else {
+            panic!("display didn't capture values")
+        };
+        assert_eq!(cap.len(), 5);
+        assert_eq!(cap["min"], cap["final"]);
+    }
 }

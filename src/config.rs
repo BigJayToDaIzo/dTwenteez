@@ -75,8 +75,10 @@ impl Config {
             // this will get much larger and need to be abstracted
             println!(
                 "usage: d20 [-h | --help | -a | -d | -c N | -s N | -m +|-N]
-** example d20 -a -c 1 -s 20 -m +9
-** Astarion rolls with advantage, one d20 with a +9 modifier"
+** example d20 -a -c 1 -s 20 -m 9
+** Astarion rolls with advantage, one d20 with a +9 modifier
+** example d20 -d -c 3 -s 6 -m -2
+** Astarion rolls with disadvantage, 3d6 with a -2 modifier"
             );
         }
     }
