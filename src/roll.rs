@@ -13,12 +13,12 @@ impl Roll {
         // this will evolve heavily
         // build display
         let mut display: String = String::from("[ ");
-        let mut rt_roll = 0;
+        let mut rt_roll: i32 = 0;
         if c.advantage {
             for _ in 0..c.count {
                 let roll1 = rng.random_range(1..=c.sides);
                 let roll2 = rng.random_range(1..=c.sides);
-                let max = roll1.max(roll2);
+                let max = roll1.max(roll2) as i32;
                 let string_appendage = format!("[{roll1},{roll2}] max: {max} ");
                 rt_roll += max;
                 display.push_str(&string_appendage);
@@ -27,14 +27,14 @@ impl Roll {
             for _ in 0..c.count {
                 let roll1 = rng.random_range(1..=c.sides);
                 let roll2 = rng.random_range(1..=c.sides);
-                let min = roll1.min(roll2);
+                let min = roll1.min(roll2) as i32;
                 let string_appendage = format!("[{roll1},{roll2}] min: {min} ");
                 rt_roll += min;
                 display.push_str(&string_appendage);
             }
         } else {
             for _ in 0..c.count {
-                let roll = rng.random_range(1..=c.sides);
+                let roll = rng.random_range(1..=c.sides) as i32;
                 rt_roll += roll;
                 let string_appendage = format!("{roll} ");
                 display.push_str(&string_appendage);
@@ -46,15 +46,26 @@ impl Roll {
                 let final_string_appendage = format!("] = {rt_roll}");
                 display.push_str(&final_string_appendage);
             }
-            i32::MIN..0 => {}
-            1..=i32::MAX => {}
+            i32::MIN..0 => {
+                let modifier = c.modifier;
+                if modifier + rt_roll < 1 {
+                    rt_roll = 1;
+                } else {
+                    rt_roll += modifier;
+                }
+                let final_string_appendage = format!("] mod: {modifier} = {rt_roll}");
+                display.push_str(&final_string_appendage);
+            }
+            1..=i32::MAX => {
+                let modifier = c.modifier;
+                rt_roll += modifier;
+                let final_string_appendage = format!("] mod: +{modifier} = {rt_roll}");
+                display.push_str(&final_string_appendage);
+            }
         }
-
-        let final_roll = rt_roll;
-        let final_string_appendage = format!("] = {rt_roll}");
-        display.push_str(&final_string_appendage);
+        // we MUST ensure roll never goes below 1
         Roll {
-            final_roll,
+            final_roll: rt_roll as u32,
             display,
         }
     }
@@ -82,7 +93,7 @@ mod test {
     fn roll_d20_no_modifiers() {
         let c = Config::default();
         let roll = Roll::new(&c);
-        assert!((1..=20).contains(&roll.final_roll));
+        assert!((1..=c.sides).contains(&roll.final_roll));
     }
     #[test]
     fn d2_no_modifiers_display() {
@@ -95,31 +106,42 @@ mod test {
         };
         assert_eq!(c.sides, 2);
         assert_eq!(cap.len(), 3); // cap[0] is entire haystack
-        assert!((1..=2).contains(&cap["summation_detail"].parse::<u32>().unwrap()));
-        assert!((1..=2).contains(&cap["total"].parse::<u32>().unwrap()));
+        assert!((1..=c.sides).contains(&cap["summation_detail"].parse::<u32>().unwrap()));
+        assert!((1..=c.sides).contains(&cap["total"].parse::<u32>().unwrap()));
         assert_eq!(&cap["summation_detail"], &cap["total"]);
     }
+    #[test]
+    fn d20_no_modifiers_display() {
+        let c = Config::default();
+        let roll = Roll::new(&c);
+        let regex = Regex::new(r"\[ (?<summation_detail>\d{1,2}) \] = (?<total>\d{1,2})").unwrap();
+        let Some(cap) = regex.captures(&roll.display) else {
+            panic!("display did not capture values");
+        };
+        assert_eq!(cap.len(), 3); // cap[0] is entire haystack
+        assert!((1..=c.sides).contains(&cap["summation_detail"].parse::<u32>().unwrap()));
+        assert!((1..=c.sides).contains(&cap["total"].parse::<u32>().unwrap()));
+        assert_eq!(&cap["summation_detail"], &cap["total"]);
+    }
+    #[test]
+    fn d20_pos_modifier_display() {
+        // [ 10 ] + mod: +2 = 12
+        let c = build_config(vec!["", "-m", "2"]);
+        let roll = Roll::new(&c);
+        let regex =
+            Regex::new(r"\[ (?<droll>\d{1,2}) \] mod: (?<modifier>\+\d{1,2}) = (?<total>\d{1,2})")
+                .unwrap();
+        let Some(cap) = regex.captures(&roll.display) else {
+            panic!("display didn't capture values")
+        };
+        assert_eq!(cap.len(), 4);
+        assert!((1..=c.sides).contains(&cap["droll"].parse::<u32>().unwrap()));
+        assert_eq!(cap["modifier"].parse::<u32>().unwrap(), 2);
+        assert!((1..=(c.sides + 2)).contains(&cap["total"].parse::<u32>().unwrap()));
+    }
     // #[test]
-    // fn d20_no_modifiers_display() {
-    //     let c = Config::default();
-    //     let roll = Roll::new(&c);
-    //     let regex = Regex::new(r"\[ (?<summation_detail>\d{1,2}) \] = (?<total>\d{1,2})").unwrap();
-    //     let Some(cap) = regex.captures(&roll.display) else {
-    //         panic!("display did not capture values");
-    //     };
-    //     assert_eq!(cap.len(), 3); // cap[0] is entire haystack
-    //     assert!((1..=20).contains(&cap["summation_detail"].parse::<u32>().unwrap()));
-    //     assert!((1..=20).contains(&cap["total"].parse::<u32>().unwrap()));
-    //     assert_eq!(&cap["summation_detail"], &cap["total"]);
-    // }
-    // #[test]
-    // fn d20_pos_modifier_display() {
-    //     // [ 10 ] + mod: +2 = 12
-    //     let c = build_config(vec!["", "-m", "2"]);
-    //     let roll = Roll::new(&c);
-    //     let regex = Regex::new(r"\[ (?<droll>\d{1,2}) \] mod: \+2 = (?<total>\d{1,2})").unwrap();
-    //     let Some(_cap) = regex.captures(&roll.display) else {
-    //         panic!("display didn't capture values")
-    //     };
+    // fn d20_neg_modifier_display() {
+    //     // [ 10 ] - mod: -2 = 8
+    //     let c = build_config(vec!["", "-m", "-2"]);
     // }
 }
