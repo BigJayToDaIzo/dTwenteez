@@ -12,22 +12,34 @@ use std::env;
 // 4) Handling errors if run returns error
 #[cfg(not(tarpaulin_include))]
 fn main() {
-    println!("We hope you enjoy the best dicer: Rollin' @DN");
+    println!("Please enjoy Rollin' @DN");
     let mut args = env::args();
     let mut c = Config::default();
     match args.len() {
         1 => {
             // show help and give default d20 roll
             c.h_opt = true;
-            let roll = Roll::new(&c);
-            let log = roll.roll_log;
-            let roll = roll.final_roll;
-            let out = format!("{log} = {roll}");
-            println!("{out}");
+            c.build(&mut args);
+            rollem(&c);
         }
+        // I believe I can do much better here
         2 => {
-            c.build(&mut args); // only display help
+            c.build(&mut args);
+            if !c.h_opt && !c.h_flag {
+                rollem(&c);
+            }
         }
-        _ => {}
+        _ => {
+            c.build(&mut args); // only display help
+            rollem(&c);
+        }
     }
+}
+
+fn rollem(c: &Config) {
+    let roll = Roll::new(c);
+    let log = roll.roll_log;
+    let roll = roll.final_roll;
+    let out = format!("{log} = {roll}");
+    println!("{out}");
 }

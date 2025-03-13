@@ -11,8 +11,11 @@ impl Roll {
     pub fn new(c: &Config) -> Roll {
         let mut rng = rand::rng();
         // this will evolve heavily
-        let mut display: String = String::from("[ ");
         let mut rt_roll = 0;
+        let num_dice = c.count;
+        let num_sides = c.sides;
+        let mut roll_log = format!("{num_dice}d{num_sides} [ ");
+
         if c.advantage {
             for _ in 0..c.count {
                 let roll1 = rng.random_range(1..=c.sides);
@@ -20,7 +23,7 @@ impl Roll {
                 let max = roll1.max(roll2) as i32;
                 let string_appendage = format!("[{roll1},{roll2}] max: {max} ");
                 rt_roll += max;
-                display.push_str(&string_appendage);
+                roll_log.push_str(&string_appendage);
             }
         } else if c.disadvantage {
             for _ in 0..c.count {
@@ -29,14 +32,14 @@ impl Roll {
                 let min = roll1.min(roll2) as i32;
                 let string_appendage = format!("[{roll1},{roll2}] min: {min} ");
                 rt_roll += min;
-                display.push_str(&string_appendage);
+                roll_log.push_str(&string_appendage);
             }
         } else {
             for _ in 0..c.count {
                 let roll = rng.random_range(1..=c.sides) as i32;
                 rt_roll += roll;
                 let string_appendage = format!("{roll} ");
-                display.push_str(&string_appendage);
+                roll_log.push_str(&string_appendage);
             }
         }
         match c.modifier {
@@ -49,21 +52,21 @@ impl Roll {
                     rt_roll += modifier;
                 }
                 let final_string_appendage = format!("] mod: {modifier}");
-                display.push_str(&final_string_appendage);
+                roll_log.push_str(&final_string_appendage);
             }
             0 => {
-                display.push(']');
+                roll_log.push(']');
             }
             1..=i32::MAX => {
                 let modifier = c.modifier;
                 rt_roll += modifier;
                 let final_string_appendage = format!("] mod: +{modifier}");
-                display.push_str(&final_string_appendage);
+                roll_log.push_str(&final_string_appendage);
             }
         }
         Roll {
             final_roll: rt_roll as u32,
-            roll_log: display,
+            roll_log,
         }
     }
 }
@@ -97,7 +100,7 @@ mod test {
         // ex: [ 2 ] = 2
         let c = build_config(vec!["", "-s", "2"]);
         let roll = Roll::new(&c);
-        let regex = Regex::new(r"\[ (?<summation_detail>\d) \]").unwrap();
+        let regex = Regex::new(r"\d{1,2}?d\d{1,2} \[ (?<summation_detail>\d) \]").unwrap();
         let Some(cap) = regex.captures(&roll.roll_log) else {
             panic!("display did not capture value");
         };
@@ -109,7 +112,7 @@ mod test {
     fn d20_no_modifiers_log() {
         let c = Config::default();
         let roll = Roll::new(&c);
-        let regex = Regex::new(r"\[ (?<summation_detail>\d{1,2}) \]").unwrap();
+        let regex = Regex::new(r"\d{1,2}?d\d{1,2} \[ (?<summation_detail>\d{1,2}) \]").unwrap();
         let Some(cap) = regex.captures(&roll.roll_log) else {
             panic!("display did not capture values");
         };
@@ -121,7 +124,9 @@ mod test {
         // [ 10 ] mod: +2 = 12
         let c = build_config(vec!["", "-m", "2"]);
         let roll = Roll::new(&c);
-        let regex = Regex::new(r"\[ (?<roll>\d{1,2}) \] mod: (?<modifier>\+\d{1,2})").unwrap();
+        let regex =
+            Regex::new(r"\d{1,2}?d\d{1,2} \[ (?<roll>\d{1,2}) \] mod: (?<modifier>\+\d{1,2})")
+                .unwrap();
         let Some(cap) = regex.captures(&roll.roll_log) else {
             panic!("display didn't capture values")
         };
@@ -134,7 +139,9 @@ mod test {
         // [ 10 ] mod: -2 = 8
         let c = build_config(vec!["", "-m", "-2"]);
         let roll = Roll::new(&c);
-        let regex = Regex::new(r"\[ (?<roll>\d{1,2}) \] mod: (?<modifier>\-\d{1,2})").unwrap();
+        let regex =
+            Regex::new(r"\d{1,2}?d\d{1,2} \[ (?<roll>\d{1,2}) \] mod: (?<modifier>\-\d{1,2})")
+                .unwrap();
         let Some(cap) = regex.captures(&roll.roll_log) else {
             panic!("display didn't capture values")
         };
@@ -154,27 +161,35 @@ mod test {
         // [ [1,2] max: 2 ] = 2
         let c = build_config(vec!["", "-a"]);
         let roll = Roll::new(&c);
-        let regex =
-            Regex::new(r"\[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] max: (?<max>\d{1,2}) \]")
-                .unwrap();
+        let regex = Regex::new(
+            r"\d{1,2}?d\d{1,2} \[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] max: (?<max>\d{1,2}) \]",
+        )
+        .unwrap();
         let Some(cap) = regex.captures(&roll.roll_log) else {
             panic!("display didn't capture values")
         };
         assert_eq!(cap.len(), 4);
-        assert!(cap["max"] >= cap["roll1"] || cap["max"] >= cap["roll2"]);
+        let max = cap["max"].parse::<u32>().unwrap();
+        let roll1 = cap["roll1"].parse::<u32>().unwrap();
+        let roll2 = cap["roll2"].parse::<u32>().unwrap();
+        assert!(max >= roll1 && max >= roll2);
     }
     #[test]
-    fn disadvantage_display_works() {
+    fn disadvantage_log_works() {
         // [ [1,2] max: 2 ] = 2
         let c = build_config(vec!["", "-d"]);
         let roll = Roll::new(&c);
-        let regex =
-            Regex::new(r"\[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] min: (?<min>\d{1,2}) \]")
-                .unwrap();
+        let regex = Regex::new(
+            r"\d{1,2}?d\d{1,2} \[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] min: (?<min>\d{1,2}) \]",
+        )
+        .unwrap();
         let Some(cap) = regex.captures(&roll.roll_log) else {
             panic!("display didn't capture values")
         };
         assert_eq!(cap.len(), 4);
-        assert!(cap["min"] <= cap["roll1"] && cap["min"] <= cap["roll2"]);
+        let min = cap["min"].parse::<u32>().unwrap();
+        let roll1 = cap["roll1"].parse::<u32>().unwrap();
+        let roll2 = cap["roll2"].parse::<u32>().unwrap();
+        assert!(min <= roll1 || min <= roll2);
     }
 }

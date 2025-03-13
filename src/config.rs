@@ -48,6 +48,10 @@ impl Config {
                     if let Some(arg) = args.next() {
                         if let Ok(sides) = arg.parse::<u32>() {
                             self.sides = sides;
+                        } else {
+                            println!("WARN: invalid argument passed to -s flag");
+                            println!("unable to parse integer from {arg}");
+                            println!("default value for sides of 20 was configured");
                         }
                     }
                 }
@@ -55,6 +59,10 @@ impl Config {
                     if let Some(arg) = args.next() {
                         if let Ok(count) = arg.parse::<u32>() {
                             self.count = count;
+                        } else {
+                            println!("WARN: invalid argument passed to -c flag");
+                            println!("unable to parse integer from {arg}");
+                            println!("default value for count of 1 was configured");
                         }
                     }
                 }
@@ -62,6 +70,10 @@ impl Config {
                     if let Some(arg) = args.next() {
                         if let Ok(modifier) = arg.parse::<i32>() {
                             self.modifier = modifier;
+                        } else {
+                            println!("WARN: invalid argument passed to -m flag");
+                            println!("unable to parse integer from {arg}");
+                            println!("default value for modifier of 0 was configured");
                         }
                     }
                 }
@@ -75,7 +87,8 @@ impl Config {
             // this will get much larger and need to be abstracted
             println!(
                 "usage: d20 [-h | --help | -a | -d | -c N | -s N | -m +|-N]
-** example d20 -a -c 1 -s 20 -m 9
+** defaults: -c = 1, -s = 20
+** example d20 -a -m 9
 ** Astarion rolls with advantage, one d20 with a +9 modifier
 ** example d20 -d -c 3 -s 6 -m -2
 ** Astarion rolls with disadvantage, 3d6 with a -2 modifier"
@@ -157,5 +170,20 @@ mod tests {
         assert_eq!(c.sides, 10);
         assert_eq!(c.count, 2);
         assert!(c.h_opt);
+    }
+    #[test]
+    fn invalid_arg_passed_to_sides_sets_default() {
+        let c = build_config(vec!["", "-s", "abc"]);
+        assert_eq!(c.sides, 20);
+    }
+    #[test]
+    fn invalid_arg_passed_to_count_sets_default() {
+        let c = build_config(vec!["", "-c", "abc"]);
+        assert_eq!(c.count, 1);
+    }
+    #[test]
+    fn invalid_arg_passed_to_modifier_sets_default() {
+        let c = build_config(vec!["", "-m", "abc"]);
+        assert_eq!(c.modifier, 0);
     }
 }
