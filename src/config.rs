@@ -195,7 +195,7 @@ impl Config {
                 });
             }
             _ => {
-                println!("WARN: too many args passed.");
+                println!("WARN: wrong number of args passed.");
                 println!("Rolling default 1d20");
             }
         }

@@ -48,7 +48,7 @@ A ready-to-use template for initializing Rust projects with a standard structure
 
 1. **Clone the Template**:
    ```bash
-   git clone https://github.com/BigJayToDaIzo/dtwenteez.git dtwenteez
+   git clone https://github.com/BigJayToDaIzo/dTwenteez.git dTwenteez
    cd dtwenteez
 2. **Initialize a New Repository**:
    ```bash
@@ -62,5 +62,3 @@ A ready-to-use template for initializing Rust projects with a standard structure
    ```bash
    cargo build
    target/debug/dTwenteez -h
-
-
