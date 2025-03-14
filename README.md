@@ -1,4 +1,4 @@
-# Rust Project Template
+# dTwenteez
 
 [![Rust Version](https://img.shields.io/badge/Rust-1.85+-blue.svg)](https://www.rust-lang.org)
 
@@ -9,11 +9,11 @@ A ready-to-use template for initializing Rust projects with a standard structure
 ## Roadmap
 
 ### MVP in notebook
-    -[ ] 1)Ask user for #d20 to roll
-    -[ ] 2)Give user quit option
-    -[ ] 3)Handle input errors gracefully
-    -[ ] 4)display roll total, and individual rolls in brackets
-    -[ ] 5)80% code coverage in test framework
+    - [x] 1)Ask user for #d20 to roll
+    - [ ] 2)Give user quit option
+    - [x] 3)Handle input errors gracefully
+    - [x] 4)display roll total, and individual rolls in brackets
+    - [x] 5)80% code coverage in test framework
 ### MVP 2.0
     // logging to text
     // accept cli args
@@ -26,12 +26,12 @@ A ready-to-use template for initializing Rust projects with a standard structure
     // MVP 3.0
     // real logging system
 ### Task Checklist (moves to changelog when complete)
-    // Task 1: Lay scaffold for testing
-    // Task 1.5: Implement README.md with roadmap and get it out of here
-    // Task 2: Display greeting
-    // Task 3: Capture user input
-    // Task 4: display results of roll
-    // Task 5: Ask for next roll/quit
+    -[x] Task 1: Lay scaffold for testing
+    -[ ] Task 1.5: Implement README.md with roadmap
+    -[x]Task 2: Display greeting
+    -[x] Task 3: Capture user input
+    -[x] Task 4: display results of roll
+    -[ ] Task 5: Ask for next roll/quit
 ---
 
 ## Features
@@ -52,8 +52,8 @@ A ready-to-use template for initializing Rust projects with a standard structure
 
 1. **Clone the Template**:
    ```bash
-   git clone https://github.com/nedrw/rust-project-template.git your-project-name
-   cd your-project-name
+   git clone https://github.com/BigJayToDaIzo/dtwenteez.git dtwenteez
+   cd dtwenteez
 2. **Initialize a New Repository**:
    ```bash
    rm -rf .git
