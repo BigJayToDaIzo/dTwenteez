@@ -1,3 +1,5 @@
+use std::process;
+
 #[derive(Debug)]
 pub struct Config {
     pub h_opt: bool,
@@ -110,6 +112,14 @@ impl Config {
         match args_v.len() {
             1 => {
                 let mut arg = args_v[0];
+                if arg.contains("q") {
+                    println!("Thanks for rollin' with dTwenteez!");
+                    process::exit(0);
+                }
+                if arg.contains("h") {
+                    self.h_opt = true;
+                    return;
+                }
                 if arg.contains('+') {
                     let arg_split: Vec<&str> = arg.split('+').collect();
                     self.modifier = arg_split[1].parse::<i32>().unwrap_or_else(|_| {

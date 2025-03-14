@@ -43,7 +43,7 @@ fn main() {
         }
         _ => {
             c.build(&mut args); // only display help
-            rollem(&c);
+            // rollem(&c);
         }
     }
 }

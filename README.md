@@ -2,39 +2,43 @@
 
 [![Rust Version](https://img.shields.io/badge/Rust-1.85+-blue.svg)](https://www.rust-lang.org)
 
-A ready-to-use template for initializing Rust projects with a standard structure and common configurations. This template is designed to help you start your Rust projects quickly while adhering to best practices.
+A dicing tool written in Rust.
 
 ---
 
 ## Roadmap
 
 ### MVP in notebook
-    - [x] 1)Ask user for #d20 to roll
-    - [ ] 2)Give user interactive quit option
-    - [ ] 2.5)Give user interactive help option
-    - [x] 3)Handle input errors gracefully
-    - [x] 4)display roll total, and individual rolls in brackets
-    - [x] 5)85+% code coverage in test framework
+
+   - [x] 1)Ask user for #d20 to roll
+   - [x] 2)Give user interactive quit option
+   - [ ] 2.5)Give user interactive help option
+   - [x] 3)Handle input errors gracefully
+   - [x] 4)display roll total, and individual rolls in brackets
+   - [x] 5)85+% code coverage in test framework
 ### MVP 2.0
-    - [ ] logging to text
-    - [x] accept cli args
-    - [ ] ex: d20 6d20 adv mod
+
+   - [ ] logging to text file
+   - [x] accept cli args
+   - [ ] ex: "d20" "6d6+1 a" "2d10-1 d"
 ### MVP 3.0
-     real logging system
+
+   - [ ] real logging / database system 
 ### Task Checklist (moves to changelog when complete)
-    -[x] Task 1: Lay scaffold for testing
-    -[x] Task 1.5: Implement README.md with roadmap
-    -[x]Task 2: Display greeting
-    -[x] Task 3: Capture user input
-    -[x] Task 4: display results of roll
-    -[ ] Task 5: Ask for next roll/quit
+
+   - [x] Task 1: Lay scaffold for testing
+   - [x] Task 1.5: Implement README.md with roadmap
+   - [x] Task 2: Display greeting
+   - [x] Task 3: Capture user input
+   - [x] Task 4: display results of roll
+   - [x] Task 5: Ask for next roll/quit
 ---
 
 ## Features
 
-- **Standard Directory Structure**: Includes `src`, `tests`, `examples`, and more.
-- **Pre-configured `Cargo.toml`**: Common dependencies and configurations are set up.
-- **Linting and Formatting**: Pre-configured with `clippy` and `rustfmt`.
+- Command line arguments for a quick single roll.
+- Interactive mode to save typing while gaming.
+- Coming Soon: roll logging and beautiful UI.
 
 ---
 
