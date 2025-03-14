@@ -121,7 +121,11 @@ impl Config {
                 }
                 if arg.contains('-') {
                     let arg_split: Vec<&str> = arg.split('-').collect();
-                    self.modifier = -arg_split[1].parse::<i32>().unwrap();
+                    self.modifier = -arg_split[1].parse::<i32>().unwrap_or_else(|_| {
+                        println!("WARN: Invald argument passed to modifier.");
+                        println!("WARN: Default modifier of 0 set.");
+                        0
+                    });
                     arg = arg_split[0];
                 }
                 let die_split: Vec<&str> = arg.split('d').collect();
@@ -344,5 +348,78 @@ mod tests {
         c.interact("d6".to_string());
         assert_eq!(c.count, 1);
         assert_eq!(c.sides, 6);
+    }
+    #[test]
+    fn bad_pos_modifier_1_arg_fails_gracefully() {
+        let mut c = Config::default();
+        c.interact("2d10+x".to_string());
+        assert_eq!(c.modifier, 0);
+    }
+    #[test]
+    fn bad_neg_modifier_1_arg_fails_gracefully() {
+        let mut c = Config::default();
+        c.interact("2d10-x".to_string());
+        assert_eq!(c.modifier, 0);
+    }
+    #[test]
+    fn bad_count_1_arg_fails_gracefully() {
+        let mut c = Config::default();
+        c.interact("xd10".to_string());
+        assert_eq!(c.count, 1);
+    }
+    #[test]
+    fn bad_sides_1_arg_fails_gracefully() {
+        let mut c = Config::default();
+        c.interact("2dx".to_string());
+        assert_eq!(c.count, 2);
+        assert_eq!(c.sides, 20);
+        let mut c = Config::default();
+        c.interact("xdx".to_string());
+        assert_eq!(c.count, 1);
+        assert_eq!(c.sides, 20);
+    }
+    #[test]
+    fn bad_adv_dis_arg_fails_gracefully() {
+        let mut c = Config::default();
+        c.interact("2d10 b".to_string());
+        assert!(!c.advantage);
+        assert!(!c.disadvantage);
+    }
+    #[test]
+    fn bad_pos_modifier_2_arg_fails_gracefully() {
+        let mut c = Config::default();
+        c.interact("2d10+x x".to_string());
+        assert_eq!(c.count, 2);
+        assert_eq!(c.sides, 10);
+        assert_eq!(c.modifier, 0);
+        assert!(!c.advantage);
+        assert!(!c.disadvantage);
+    }
+    #[test]
+    fn bad_neg_modifier_2_arg_fails_gracefully() {
+        let mut c = Config::default();
+        c.interact("2d10-x x".to_string());
+        assert_eq!(c.count, 2);
+        assert_eq!(c.sides, 10);
+        assert_eq!(c.modifier, 0);
+        assert!(!c.advantage);
+        assert!(!c.disadvantage);
+    }
+    #[test]
+    fn bad_count_and_sides_fails_gracefully() {
+        let mut c = Config::default();
+        c.interact("xdx+1 a".to_string());
+        assert_eq!(c.count, 1);
+        assert_eq!(c.sides, 20);
+        assert!(c.advantage);
+        assert_eq!(c.modifier, 1);
+    }
+    #[test]
+    fn too_many_args_fails_to_default() {
+        let mut c = Config::default();
+        c.interact("a b c".to_string());
+        assert_eq!(c.count, 1);
+        assert_eq!(c.sides, 20);
+        assert_eq!(c.modifier, 0);
     }
 }
