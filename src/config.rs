@@ -27,6 +27,15 @@ impl Config {
             modifier: 0,
         }
     }
+    pub fn reset(&mut self) {
+        self.h_opt = false;
+        self.h_flag = false;
+        self.advantage = false;
+        self.disadvantage = false;
+        self.sides = 20;
+        self.count = 1;
+        self.modifier = 0;
+    }
     pub fn build<T>(&mut self, args: &mut T)
     where
         T: Iterator<Item = String>,
@@ -93,6 +102,72 @@ impl Config {
 ** example d20 -d -c 3 -s 6 -m -2
 ** Astarion rolls with disadvantage, 3d6 with a -2 modifier"
             );
+        }
+    }
+    pub fn interact(&mut self, args: String) {
+        self.reset();
+        let args_v: Vec<&str> = args.split_whitespace().collect();
+        match args_v.len() {
+            1 => {
+                let mut arg = args_v[0];
+                if arg.contains('+') {
+                    let arg_split: Vec<&str> = arg.split('+').collect();
+                    // TODO: replace unwrap with warning default used
+                    self.modifier = arg_split[1].parse::<i32>().unwrap();
+                    arg = arg_split[0];
+                }
+                if arg.contains('-') {
+                    let arg_split: Vec<&str> = arg.split('-').collect();
+                    self.modifier = -arg_split[1].parse::<i32>().unwrap();
+                    arg = arg_split[0];
+                }
+                let die_split: Vec<&str> = arg.split('d').collect();
+                // we split on + or - and if we DO split on - pass negative value
+                if !die_split[0].is_empty() {
+                    // TODO: replace unwrap with warning default used
+                    self.count = die_split[0].parse::<u32>().unwrap();
+                }
+                // TODO: replace unwrap with warning default used
+                self.sides = die_split[1].parse::<u32>().unwrap();
+            }
+            2 => {
+                match args_v[1] {
+                    "a" => {
+                        self.advantage = true;
+                        self.disadvantage = false;
+                    }
+                    "d" => {
+                        self.disadvantage = true;
+                        self.advantage = false;
+                    }
+                    _ => {
+                        println!("WARN: invalid arg passed, only 'a' and 'd' are valid options");
+                    }
+                };
+                let mut arg = args_v[0];
+                if arg.contains('+') {
+                    let arg_split: Vec<&str> = arg.split('+').collect();
+                    // TODO: replace unwrap with warning default used
+                    self.modifier = arg_split[1].parse::<i32>().unwrap();
+                    arg = arg_split[0];
+                }
+                if arg.contains('-') {
+                    let arg_split: Vec<&str> = arg.split('-').collect();
+                    self.modifier = -arg_split[1].parse::<i32>().unwrap();
+                    arg = arg_split[0];
+                }
+                let die_split: Vec<&str> = arg.split('d').collect();
+                // we split on + or - and if we DO split on - pass negative value
+                if !die_split[0].is_empty() {
+                    // TODO: replace unwrap with warning default used
+                    self.count = die_split[0].parse::<u32>().unwrap();
+                }
+                // TODO: replace unwrap with warning default used
+                self.sides = die_split[1].parse::<u32>().unwrap();
+            }
+            _ => {
+                println!("WARN: too many args passed, ignoring extras");
+            }
         }
     }
 }
@@ -185,5 +260,63 @@ mod tests {
     fn invalid_arg_passed_to_modifier_sets_default() {
         let c = build_config(vec!["", "-m", "abc"]);
         assert_eq!(c.modifier, 0);
+    }
+    #[test]
+    fn interactive_d10_works() {
+        let mut c = Config::default();
+        c.interact("d10".to_string());
+        assert_eq!(c.sides, 10);
+    }
+    #[test]
+    fn interactive_pos_modifier_works() {
+        let mut c = Config::default();
+        c.interact("d10+1".to_string());
+        assert_eq!(c.sides, 10);
+        assert_eq!(c.modifier, 1);
+    }
+    #[test]
+    fn interactive_neg_modifier_works() {
+        let mut c = Config::default();
+        c.interact("d10-1".to_string());
+        assert_eq!(c.sides, 10);
+        assert_eq!(c.modifier, -1);
+    }
+    #[test]
+    fn interactive_multi_die_works() {
+        let mut c = Config::default();
+        c.interact("3d6".to_string());
+        assert_eq!(c.count, 3);
+        assert_eq!(c.sides, 6);
+    }
+    #[test]
+    fn interactive_advantage_works() {
+        let mut c = Config::default();
+        c.interact("d10 a".to_string());
+        assert_eq!(c.sides, 10);
+        assert!(c.advantage);
+    }
+    #[test]
+    fn interactive_disadvantage_works() {
+        let mut c = Config::default();
+        c.interact("d10 d".to_string());
+        assert_eq!(c.sides, 10);
+        assert!(c.disadvantage);
+    }
+    #[test]
+    fn interactive_mix_and_match_works() {
+        let mut c = Config::default();
+        c.interact("2d10+1 a".to_string());
+        assert_eq!(c.sides, 10);
+        assert_eq!(c.count, 2);
+        assert_eq!(c.modifier, 1);
+        assert!(c.advantage);
+        c.interact("3d6-2 d".to_string());
+        assert_eq!(c.count, 3);
+        assert_eq!(c.sides, 6);
+        assert_eq!(c.modifier, -2);
+        assert!(c.disadvantage);
+        c.interact("d6".to_string());
+        assert_eq!(c.count, 1);
+        assert_eq!(c.sides, 6);
     }
 }

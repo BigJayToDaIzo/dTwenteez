@@ -1,15 +1,10 @@
+use config::Config;
+use roll::Roll;
+use std::{env, io};
+
 mod config;
 mod roll;
 
-use config::Config;
-use roll::Roll;
-use std::env;
-
-// We must isolate ONLY these 4 tasks to main, all else should be abstracted
-// 1) Calling the command line parsing logic with
-// 2) Setting up configuration (ABSTRACT THIS NAO)
-// 3) Calling a run function in lib.rs
-// 4) Handling errors if run returns error
 #[cfg(not(tarpaulin_include))]
 fn main() {
     println!("Please enjoy Rollin' @DN");
@@ -17,13 +12,30 @@ fn main() {
     let mut c = Config::default();
     match args.len() {
         1 => {
-            // show help and give default d20 roll
-            c.h_opt = true;
-            c.build(&mut args);
-            rollem(&c);
+            // no arg is interactive mode!
+            println!("Also please enjoy interactive rolling mode!");
+            println!("pass args to roll, 'h' for help, and 'q' to quit");
+            println!("examples: d6, 2d10-1, 3d6+1 d, d20 a");
+            loop {
+                let mut raw_args = String::new();
+                println!("wut dem args iz?");
+                // ex: d10
+                // ex: d20+1 a
+                // ex: 2d6-1 d
+                match io::stdin().read_line(&mut raw_args) {
+                    Ok(_) => (),
+                    Err(e) => {
+                        panic!("Something borkied: {e}");
+                    }
+                }
+                // here we know raw_args read some number of bytes
+                raw_args = raw_args.trim().to_string();
+                c.interact(raw_args);
+                rollem(&c);
+            }
         }
-        // I believe I can do much better here
         2 => {
+            // no loop cuz args passed
             c.build(&mut args);
             if !c.h_opt && !c.h_flag {
                 rollem(&c);

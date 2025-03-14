@@ -152,7 +152,7 @@ mod test {
     #[test]
     fn neg_modifier_does_not_lower_roll_below_one() {
         // [ 1 ] mod: -1 = 1
-        let c = build_config(vec!["", "-s", "2", "-m", "-2"]);
+        let c = build_config(vec!["", "-s", "2", "-m", "-3"]);
         let roll = Roll::new(&c);
         assert_eq!(roll.final_roll, 1);
     }
