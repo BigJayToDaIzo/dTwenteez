@@ -112,8 +112,11 @@ impl Config {
                 let mut arg = args_v[0];
                 if arg.contains('+') {
                     let arg_split: Vec<&str> = arg.split('+').collect();
-                    // TODO: replace unwrap with warning default used
-                    self.modifier = arg_split[1].parse::<i32>().unwrap();
+                    self.modifier = arg_split[1].parse::<i32>().unwrap_or_else(|_| {
+                        println!("WARN: Invald argument passed to modifier.");
+                        println!("WARN: Default modifier of 0 set.");
+                        0
+                    });
                     arg = arg_split[0];
                 }
                 if arg.contains('-') {
@@ -124,11 +127,17 @@ impl Config {
                 let die_split: Vec<&str> = arg.split('d').collect();
                 // we split on + or - and if we DO split on - pass negative value
                 if !die_split[0].is_empty() {
-                    // TODO: replace unwrap with warning default used
-                    self.count = die_split[0].parse::<u32>().unwrap();
+                    self.count = die_split[0].parse::<u32>().unwrap_or_else(|_| {
+                        println!("WARN: Invalid argument passed to count.");
+                        println!("WARN: Default count of 1 set.");
+                        1
+                    });
                 }
-                // TODO: replace unwrap with warning default used
-                self.sides = die_split[1].parse::<u32>().unwrap();
+                self.sides = die_split[1].parse::<u32>().unwrap_or_else(|_| {
+                    println!("WARN: Invalid argument passed to sides.");
+                    println!("WARN: Default sides of 20 set.");
+                    20
+                });
             }
             2 => {
                 match args_v[1] {
@@ -142,31 +151,47 @@ impl Config {
                     }
                     _ => {
                         println!("WARN: invalid arg passed, only 'a' and 'd' are valid options");
+                        println!("WARN: default values for adv/disadvantage set to false.");
+                        self.advantage = false;
+                        self.disadvantage = false;
                     }
                 };
                 let mut arg = args_v[0];
                 if arg.contains('+') {
                     let arg_split: Vec<&str> = arg.split('+').collect();
-                    // TODO: replace unwrap with warning default used
-                    self.modifier = arg_split[1].parse::<i32>().unwrap();
+                    self.modifier = arg_split[1].parse::<i32>().unwrap_or_else(|_| {
+                        println!("WARN: Invald argument passed to modifier.");
+                        println!("WARN: Default modifier of 0 set.");
+                        0
+                    });
                     arg = arg_split[0];
                 }
                 if arg.contains('-') {
                     let arg_split: Vec<&str> = arg.split('-').collect();
-                    self.modifier = -arg_split[1].parse::<i32>().unwrap();
+                    self.modifier = -arg_split[1].parse::<i32>().unwrap_or_else(|_| {
+                        println!("WARN: Invald argument passed to modifier.");
+                        println!("WARN: Default modifier of 0 set.");
+                        0
+                    });
                     arg = arg_split[0];
                 }
                 let die_split: Vec<&str> = arg.split('d').collect();
                 // we split on + or - and if we DO split on - pass negative value
                 if !die_split[0].is_empty() {
-                    // TODO: replace unwrap with warning default used
-                    self.count = die_split[0].parse::<u32>().unwrap();
+                    self.count = die_split[0].parse::<u32>().unwrap_or_else(|_| {
+                        println!("WARN: Invalid argument passed to count.");
+                        println!("WARN: Default count of 1 set.");
+                        1
+                    });
                 }
-                // TODO: replace unwrap with warning default used
-                self.sides = die_split[1].parse::<u32>().unwrap();
+                self.sides = die_split[1].parse::<u32>().unwrap_or_else(|_| {
+                    println!("WARN: Invalid argument passed to sides.");
+                    println!("WARN: Default sides of 20 set.");
+                    20
+                });
             }
             _ => {
-                println!("WARN: too many args passed, ignoring extras");
+                println!("WARN: too many args passed.");
                 println!("Rolling default 1d20");
             }
         }
