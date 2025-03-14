@@ -95,11 +95,11 @@ impl Config {
         if self.h_opt || self.h_flag {
             // this will get much larger and need to be abstracted
             println!(
-                "usage: d20 [-h | --help | -a | -d | -c N | -s N | -m +|-N]
+                "usage: dTwenteez [-h | --help | -a | -d | -c N | -s N | -m +|-N]
 ** defaults: -c = 1, -s = 20
-** example d20 -a -m 9
+** example dTwenteez -a -m 9
 ** Astarion rolls with advantage, one d20 with a +9 modifier
-** example d20 -d -c 3 -s 6 -m -2
+** example dTwenteez -d -c 3 -s 6 -m -2
 ** Astarion rolls with disadvantage, 3d6 with a -2 modifier"
             );
         }

@@ -14,7 +14,7 @@ need_stdout = false
 
 [jobs.tarpaulin]
 command = ["cargo", "tarpaulin", "--out", "Html", "--skip-clean"]
-need_stdout = true
+need_stdout = false 
 
 [jobs.check-all]
 command = ["cargo", "check", "--all-targets"]

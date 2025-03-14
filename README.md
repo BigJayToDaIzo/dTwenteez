@@ -10,7 +10,8 @@ A ready-to-use template for initializing Rust projects with a standard structure
 
 ### MVP in notebook
     - [x] 1)Ask user for #d20 to roll
-    - [ ] 2)Give user quit option
+    - [ ] 2)Give user interactive quit option
+    - [ ] 2.5)Give user interactive help option
     - [x] 3)Handle input errors gracefully
     - [x] 4)display roll total, and individual rolls in brackets
     - [x] 5)80% code coverage in test framework
@@ -61,3 +62,10 @@ A ready-to-use template for initializing Rust projects with a standard structure
 3. **Update Project Metadata**:
    1. Update the Cargo.toml file with your project's name, version, and other details.
    2. Update the README.md file to reflect your project's description and usage.
+
+4. Build and Run the Project:
+   ```bash
+   cargo build
+   target/debug/dTwenteez -h
+
+
