@@ -14,21 +14,16 @@ A ready-to-use template for initializing Rust projects with a standard structure
     - [ ] 2.5)Give user interactive help option
     - [x] 3)Handle input errors gracefully
     - [x] 4)display roll total, and individual rolls in brackets
-    - [x] 5)80% code coverage in test framework
+    - [x] 5)85+% code coverage in test framework
 ### MVP 2.0
-    // logging to text
-    // accept cli args
-    // let args: Vec<String> = env::args().collect();
-    // dbg!(&args);
-    // env::args good enough?  Need args_os robustosity?
-    // ex: d20 6d20 adv mod
-    // manual cli at first
-    // then on to crates.io to find something that already exists
-    // MVP 3.0
-    // real logging system
+    - [ ] logging to text
+    - [x] accept cli args
+    - [ ] ex: d20 6d20 adv mod
+### MVP 3.0
+     real logging system
 ### Task Checklist (moves to changelog when complete)
     -[x] Task 1: Lay scaffold for testing
-    -[ ] Task 1.5: Implement README.md with roadmap
+    -[x] Task 1.5: Implement README.md with roadmap
     -[x]Task 2: Display greeting
     -[x] Task 3: Capture user input
     -[x] Task 4: display results of roll
