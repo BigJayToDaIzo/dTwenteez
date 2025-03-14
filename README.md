@@ -7,23 +7,26 @@ A dicing tool written in Rust.
 ---
 
 ## Roadmap
+ - See [CHANGELOG.md](CHANGELOG.md)
 
-### MVP in notebook
+### MVP 0.0.1
 
-   - [x] 1)Ask user for #d20 to roll
-   - [x] 2)Give user interactive quit option
-   - [ ] 2.5)Give user interactive help option
-   - [x] 3)Handle input errors gracefully
-   - [x] 4)display roll total, and individual rolls in brackets
+   - [x] Interactively ask user for roll input
+        - ex: "d20" "6d6+1 a" "2d10-1 d"
+   - [x] accept cli args
+   - [x] Give user interactive quit option
+   - [ ] Give user interactive help option
+   - [x] Handle input errors gracefully
+   - [x] Display roll total, and individual rolls in brackets
    - [x] 5)85+% code coverage in test framework
-### MVP 2.0
+### MVP 0.0.2
 
    - [ ] logging to text file
-   - [x] accept cli args
-   - [ ] ex: "d20" "6d6+1 a" "2d10-1 d"
-### MVP 3.0
+### MVP 0.0.3
 
    - [ ] real logging / database system 
+   - [ ] public api for client apps
+   - [ ] a client app/UI
 ### Task Checklist (moves to changelog when complete)
 
    - [x] Task 1: Lay scaffold for testing

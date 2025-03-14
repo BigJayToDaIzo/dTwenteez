@@ -1,3 +1,4 @@
+// layout for zellij.dev muxer.  You should totally check it out!
 layout {
   cwd "/home/jm/Projects/learn/rust/rustlings"
   default_tab_template {
