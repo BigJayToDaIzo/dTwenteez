@@ -36,16 +36,18 @@ fn main() {
                 }
             }
         }
-        2 => {
-            // no loop cuz args passed
-            c.build(&mut args);
+        // 2 => {
+        //     // no loop cuz args passed
+        //     c.build(&mut args);
+        //     if !c.h_opt && !c.h_flag {
+        //         rollem(&c);
+        //     }
+        // }
+        _ => {
+            c.build(&mut args); // only display help
             if !c.h_opt && !c.h_flag {
                 rollem(&c);
             }
-        }
-        _ => {
-            c.build(&mut args); // only display help
-            // rollem(&c);
         }
     }
 }

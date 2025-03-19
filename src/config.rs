@@ -134,7 +134,8 @@ d20 ** Astarion rolls 1d20 with no modifiers of any kind"
                     self.h_opt = true;
                     Self::display_interactive_help();
                     return;
-                } else if arg.contains("q") {
+                }
+                if arg.contains("q") {
                     println!("Thanks for rollin' with dTwenteez!");
                     process::exit(0);
                 }
@@ -155,21 +156,21 @@ d20 ** Astarion rolls 1d20 with no modifiers of any kind"
                         0
                     });
                     arg = arg_split[0];
-                    let die_split: Vec<&str> = arg.split('d').collect();
-                    // we split on + or - and if we DO split on - pass negative value
-                    if !die_split[0].is_empty() {
-                        self.count = die_split[0].parse::<u32>().unwrap_or_else(|_| {
-                            println!("WARN: Invalid argument passed to count.");
-                            println!("WARN: Default count of 1 set.");
-                            1
-                        });
-                    }
-                    self.sides = die_split[1].parse::<u32>().unwrap_or_else(|_| {
-                        println!("WARN: Invalid argument passed to sides.");
-                        println!("WARN: Default sides of 20 set.");
-                        20
+                }
+                let die_split: Vec<&str> = arg.split('d').collect();
+                // we split on + or - and if we DO split on - pass negative value
+                if !die_split[0].is_empty() {
+                    self.count = die_split[0].parse::<u32>().unwrap_or_else(|_| {
+                        println!("WARN: Invalid argument passed to count.");
+                        println!("WARN: Default count of 1 set.");
+                        1
                     });
                 }
+                self.sides = die_split[1].parse::<u32>().unwrap_or_else(|_| {
+                    println!("WARN: Invalid argument passed to sides.");
+                    println!("WARN: Default sides of 20 set.");
+                    20
+                });
             }
             2 => {
                 match args_v[1] {
