@@ -1,6 +1,9 @@
 use config::Config;
 use roll::Roll;
-use std::{env, io};
+use std::{
+    env,
+    io::{self, Write},
+};
 
 mod config;
 mod roll;
@@ -17,8 +20,9 @@ fn main() {
             println!("pass args to roll, 'h' for help, and 'q' to quit");
             println!("examples: d6, 2d10-1, 3d6+1 d, d20 a");
             loop {
+                print!("What are we rolling? ");
+                io::stdout().flush().unwrap();
                 let mut raw_args = String::new();
-                println!("wut dem args iz?");
                 // ex: d10
                 // ex: d20+1 a
                 // ex: 2d6-1 d
@@ -36,13 +40,6 @@ fn main() {
                 }
             }
         }
-        // 2 => {
-        //     // no loop cuz args passed
-        //     c.build(&mut args);
-        //     if !c.h_opt && !c.h_flag {
-        //         rollem(&c);
-        //     }
-        // }
         _ => {
             c.build(&mut args); // only display help
             if !c.h_opt && !c.h_flag {
@@ -51,7 +48,7 @@ fn main() {
         }
     }
 }
-
+#[cfg(not(tarpaulin_include))]
 fn rollem(c: &Config) {
     let roll = Roll::new(c);
     let log = roll.roll_log;
