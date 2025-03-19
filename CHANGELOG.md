@@ -12,18 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - ex: "d20" "6d6+1 a" "2d10-1 d"
    - [x] accept cli args
    - [x] Give user interactive quit option
-   - [ ] Give user interactive help option
+   - [x] Give user interactive help option
    - [x] Handle input errors gracefully
    - [x] Display roll total, and individual rolls in brackets
    - [x] 5)85+% code coverage in test framework
 ### MVP 0.0.2
 
    - [ ] logging to text file
+   - [ ] read input scripts for predetermined roll sets
+   - [ ] a TUI built with [ratatui](https://ratatui.rs)
 ### MVP 0.0.3
 
    - [ ] real logging / database system 
    - [ ] public api for client apps
-   - [ ] a client app/UI
 ### Task Checklist (moves to changelog when complete)
 
    - [x] Task 1: Implement README.md with roadmap
