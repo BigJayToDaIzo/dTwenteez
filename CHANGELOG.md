@@ -8,14 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### MVP 0.0.1
 
-   - [x] Interactively ask user for roll input
-        - ex: "d20" "6d6+1 a" "2d10-1 d"
-   - [x] accept cli args
+   - [x] Interactive mode ask user for roll input until 'q' is passed
+        - ex: "d20" "6d6+1 a" "2d10-1 d" "h" "q"
+   - [x] Accept cli args
    - [x] Give user interactive quit option
    - [x] Give user interactive help option
    - [x] Handle input errors gracefully
    - [x] Display roll total, and individual rolls in brackets
-   - [x] 5)85+% code coverage in test framework
+   - [x] 85+% code coverage in test framework
+   - [ ] Deploy to crates.io
 ### MVP 0.0.2
 
    - [ ] logging to text file
@@ -38,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - v1.1 Brazilian Portuguese translation.
 
 
-## [0.0.1] - 2014-05-31
+## [0.0.1] - 2025-03-19
 
 ### Added
 
