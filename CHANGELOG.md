@@ -26,8 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - [ ] a client app/UI
 ### Task Checklist (moves to changelog when complete)
 
-   - [x] Task 1: Lay scaffold for testing
-   - [x] Task 1.5: Implement README.md with roadmap
+   - [x] Task 1: Implement README.md with roadmap
    - [x] Task 2: Display greeting
    - [x] Task 3: Capture user input
    - [x] Task 4: display results of roll

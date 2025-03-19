@@ -96,15 +96,33 @@ impl Config {
         }
         if self.h_opt || self.h_flag {
             // this will get much larger and need to be abstracted
-            println!(
-                "usage: dTwenteez [-h | --help | -a | -d | -c N | -s N | -m +|-N]
-** defaults: -c = 1, -s = 20
-** example dTwenteez -a -m 9
-** Astarion rolls with advantage, one d20 with a +9 modifier
-** example dTwenteez -d -c 3 -s 6 -m -2
-** Astarion rolls with disadvantage, 3d6 with a -2 modifier"
-            );
+            Self::display_cli_help();
         }
+    }
+    pub fn display_cli_help() {
+        println!(
+            "usage: dTwenteez [-h | --help | -a | -d | -c N | -s N | -m +|-N]
+usage: `dTwenteez` (no args) will start an interactive mode 
+** defaults: -c = 1, -s = 20 -m = 0 -a & -d = false
+** example dTwenteez -a -m 9 ** Astarion rolls with advantage, one d20 with a +9 modifier
+** example dTwenteez -d -c 3 -s 6 -m -2 ** Astarion rolls with disadvantage, 3d6 with a -2 modifier
+Flags and args can be passed in any order.
+Flags -c, -s and -m will expect to be followed by a space and integer argument following them.
+** example dTwenteez -m -3 -a -s 6 -c 4 ** Astarion rolls with advantage, 4d6 with -3 modifier"
+        );
+    }
+    pub fn display_interactive_help() {
+        println!(
+            "syntax: [n]dS[+|-M] [a|d]
+Where n is optional die multiplier integer.
+S is required integer for die sides.
++M or -M where M is an integer for positive or negative roll modifiers.
+a or d are optional advantage or disadvantage modifiers.
+examples:
+2d10-3 a ** Astarion rolls 2d10 with advantage and a -3 modifier
+6d6+2 d ** Astarion rolls 6d6 with disadvantage and +2 modifier
+d20 ** Astarion rolls 1d20 with no modifiers of any kind"
+        );
     }
     pub fn interact(&mut self, args: String) {
         self.reset();
@@ -112,13 +130,13 @@ impl Config {
         match args_v.len() {
             1 => {
                 let mut arg = args_v[0];
-                if arg.contains("q") {
-                    println!("Thanks for rollin' with dTwenteez!");
-                    process::exit(0);
-                }
                 if arg.contains("h") {
                     self.h_opt = true;
+                    Self::display_interactive_help();
                     return;
+                } else if arg.contains("q") {
+                    println!("Thanks for rollin' with dTwenteez!");
+                    process::exit(0);
                 }
                 if arg.contains('+') {
                     let arg_split: Vec<&str> = arg.split('+').collect();
@@ -137,21 +155,21 @@ impl Config {
                         0
                     });
                     arg = arg_split[0];
-                }
-                let die_split: Vec<&str> = arg.split('d').collect();
-                // we split on + or - and if we DO split on - pass negative value
-                if !die_split[0].is_empty() {
-                    self.count = die_split[0].parse::<u32>().unwrap_or_else(|_| {
-                        println!("WARN: Invalid argument passed to count.");
-                        println!("WARN: Default count of 1 set.");
-                        1
+                    let die_split: Vec<&str> = arg.split('d').collect();
+                    // we split on + or - and if we DO split on - pass negative value
+                    if !die_split[0].is_empty() {
+                        self.count = die_split[0].parse::<u32>().unwrap_or_else(|_| {
+                            println!("WARN: Invalid argument passed to count.");
+                            println!("WARN: Default count of 1 set.");
+                            1
+                        });
+                    }
+                    self.sides = die_split[1].parse::<u32>().unwrap_or_else(|_| {
+                        println!("WARN: Invalid argument passed to sides.");
+                        println!("WARN: Default sides of 20 set.");
+                        20
                     });
                 }
-                self.sides = die_split[1].parse::<u32>().unwrap_or_else(|_| {
-                    println!("WARN: Invalid argument passed to sides.");
-                    println!("WARN: Default sides of 20 set.");
-                    20
-                });
             }
             2 => {
                 match args_v[1] {

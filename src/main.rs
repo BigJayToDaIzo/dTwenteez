@@ -31,7 +31,9 @@ fn main() {
                 // here we know raw_args read some number of bytes
                 raw_args = raw_args.trim().to_string();
                 c.interact(raw_args);
-                rollem(&c);
+                if !c.h_opt && !c.h_flag {
+                    rollem(&c);
+                }
             }
         }
         2 => {
