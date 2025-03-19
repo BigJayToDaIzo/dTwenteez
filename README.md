@@ -30,11 +30,13 @@ A dicing tool written in Rust.
 1. **Clone the Template**:
    ```bash
    git clone https://github.com/BigJayToDaIzo/dTwenteez.git dTwenteez
-   cd dtwenteez
+   cd dTwenteez
+
 2. **Initialize a New Repository**:
    ```bash
    rm -rf .git
    git init
+
 3. **Update Project Metadata**:
    1. Update the Cargo.toml file with your project's name, version, and other details.
    2. Update the README.md file to reflect your project's description and usage.
@@ -43,3 +45,4 @@ A dicing tool written in Rust.
    ```bash
    cargo build
    target/debug/dTwenteez -h
+
