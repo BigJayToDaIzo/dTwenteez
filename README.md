@@ -32,12 +32,7 @@ A dicing tool written in Rust.
    git clone https://github.com/BigJayToDaIzo/dTwenteez.git dTwenteez
    cd dTwenteez
 
-2. **Initialize a New Repository**:
-   ```bash
-   rm -rf .git
-   git init
-
-3. Build and Run the Project:
+2. Build and Run the Project:
    ```bash
    cargo build
    target/debug/dTwenteez -h
