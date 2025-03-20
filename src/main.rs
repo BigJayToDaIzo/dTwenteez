@@ -41,7 +41,7 @@ fn main() {
             }
         }
         _ => {
-            c.build(&mut args); // only display help
+            c.build(&mut args);
             if !c.h_opt && !c.h_flag {
                 rollem(&c);
             }

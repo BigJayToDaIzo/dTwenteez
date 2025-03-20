@@ -37,11 +37,7 @@ A dicing tool written in Rust.
    rm -rf .git
    git init
 
-3. **Update Project Metadata**:
-   1. Update the Cargo.toml file with your project's name, version, and other details.
-   2. Update the README.md file to reflect your project's description and usage.
-
-4. Build and Run the Project:
+3. Build and Run the Project:
    ```bash
    cargo build
    target/debug/dTwenteez -h
