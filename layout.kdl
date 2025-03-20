@@ -1,6 +1,4 @@
-// layout for zellij.dev muxer.  You should totally check it out!
 layout {
-  cwd "/home/jm/Projects/learn/rust/rustlings"
   default_tab_template {
     children
     pane size=1 borderless=true {
@@ -76,25 +74,25 @@ layout {
         format_precedence "clr"
 
 
-        command_git_branch_command     "git rev-parse --abbrev-ref head"
+        command_git_branch_command     "git rev-parse --abbrev-ref HEAD"
         command_git_branch_interval    "10"
         command_git_branch_rendermode  "static"
         command_git_branch_format      "#[fg=$section_fg] {stdout} "
 
-        datetime_format "  %A, %d %b %Y  %H:%M"
+        datetime_format "  %a, %d %b '%y  %H:%M"
         datetime_timezone "America/Chicago"
         datetime        "#[fg=$section_fg,bold,bg=$tab_norm_bg]{format} "
       }
     }
   }
   // set cwd of current project on tab 
-  tab name=" Dev" cwd="/home/jm/Projects/personal/rust/d20"{
+  tab name=" Dev" cwd="."{
     // tweak these splits
     pane split_direction="vertical" size="50%" {
       pane command="nvim" {
         focus true
         start_suspended true
-        args "src/lib.rs"
+        args "src/"
       }
       // watch
       pane stacked=true {
@@ -107,6 +105,8 @@ layout {
     }
   }
   tab name="Lazy " {
-    pane command="lazygit"
+    pane command="lazygit" {
+      start_suspended true
+    }
   }
 }
