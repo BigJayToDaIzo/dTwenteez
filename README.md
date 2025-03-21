@@ -27,7 +27,7 @@ A dicing tool written in Rust.
 
 ### Usage
 
-1. **Clone the Template**:
+1. **Clone the Repository**:
    ```bash
    git clone https://github.com/BigJayToDaIzo/dTwenteez.git dTwenteez
    cd dTwenteez
@@ -37,3 +37,7 @@ A dicing tool written in Rust.
    cargo build
    target/debug/dTwenteez -h
 
+## Inspirations and Bad MFery
+[Bad MF Jasper Flick](https://anydice.com)
+[Bad MF Naomi](https://codeberg.org/sheetr/diced)
+[RPG Crossing Home](https://www.rpgcrossing.com/faq.php?faq=dice_roller_category)

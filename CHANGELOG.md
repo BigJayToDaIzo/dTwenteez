@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - [x] Handle input errors gracefully
    - [x] Display roll total, and individual rolls in brackets
    - [x] 85+% code coverage in test framework
+   - [ ] Remove ambiguity of advantage / disadvantage (this means vastly different things in many dice based game systems)
+    - drop highest and drop lowest refactor
    - [ ] Deploy to crates.io
 ### MVP 0.0.2
 
@@ -33,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - [x] Task 3: Capture user input
    - [x] Task 4: display results of roll
    - [x] Task 5: Ask for next roll/quit
+   - [ ] Task 6: Refactor adv/disadv
 
 ### Added
 
