@@ -4,11 +4,13 @@ use std::process;
 pub struct Config {
     pub h_opt: bool,
     pub h_flag: bool,
-    pub advantage: bool,
-    pub disadvantage: bool,
     pub sides: u32,
     pub count: u32,
     pub modifier: i32,
+    pub keeping: u32,
+    pub dropping: u32,
+    pub keep_high: bool,
+    pub keep_low: bool,
 }
 
 impl Default for Config {
@@ -22,8 +24,10 @@ impl Config {
         Config {
             h_opt: false,
             h_flag: false,
-            advantage: false,
-            disadvantage: false,
+            keeping: 1,
+            dropping: 0,
+            keep_high: true,
+            keep_low: false,
             sides: 20,
             count: 1,
             modifier: 0,
@@ -32,8 +36,8 @@ impl Config {
     pub fn reset(&mut self) {
         self.h_opt = false;
         self.h_flag = false;
-        self.advantage = false;
-        self.disadvantage = false;
+        self.keeping = 1;
+        self.dropping = 0;
         self.sides = 20;
         self.count = 1;
         self.modifier = 0;
@@ -47,14 +51,6 @@ impl Config {
             match arg.as_str() {
                 "-h" => self.h_opt = true,
                 "--help" => self.h_flag = true,
-                "-a" => {
-                    self.advantage = true;
-                    self.disadvantage = false;
-                }
-                "-d" => {
-                    self.advantage = false;
-                    self.disadvantage = true;
-                }
                 "-s" => {
                     if let Some(arg) = args.next() {
                         if let Ok(sides) = arg.parse::<u32>() {
@@ -88,6 +84,42 @@ impl Config {
                         }
                     }
                 }
+                // fragile, -kh/kl/dh/dl must be last
+                // parse int into -kh3 ? (yes)
+                x if x.contains("-kh") => {
+                    // determine if trailing u32 in arg
+                    self.keep_high = true;
+                    self.keep_low = false;
+                    if let Some(arg) = args.next() {
+                        if let Ok(keeping) = arg.parse::<u32>() {
+                            self.keeping = keeping;
+                            self.dropping = 0;
+                        } else {
+                            println!("WARN: no integer to parse for -kh flag");
+                            println!("WARN: using default value of 1");
+                            self.keeping = 1;
+                            self.dropping = 0;
+                        }
+                    }
+                }
+                // fragile, -kh/kl/dh/dl must be last
+                x if x.contains("-kl") => {
+                    self.keep_low = true;
+                    self.keep_high = false;
+                    if let Some(arg) = args.next() {
+                        if let Ok(keeping) = arg.parse::<u32>() {
+                            self.keeping = keeping;
+                            self.dropping = 0;
+                        }
+                    } else {
+                        println!("WARN: no integer to parse for -kl flag");
+                        println!("WARN: using default value of 1");
+                        self.keeping = 1;
+                        self.dropping = 0;
+                    }
+                }
+                "-dh" => {}
+                "-dl" => {}
                 x => {
                     println!("arg string broken with invalid argument: {x}");
                     self.h_opt = true;
@@ -173,22 +205,22 @@ d20 ** Astarion rolls 1d20 with no modifiers of any kind"
                 });
             }
             2 => {
-                match args_v[1] {
-                    "a" => {
-                        self.advantage = true;
-                        self.disadvantage = false;
-                    }
-                    "d" => {
-                        self.disadvantage = true;
-                        self.advantage = false;
-                    }
-                    _ => {
-                        println!("WARN: invalid arg passed, only 'a' and 'd' are valid options");
-                        println!("WARN: default values for adv/disadvantage set to false.");
-                        self.advantage = false;
-                        self.disadvantage = false;
-                    }
-                };
+                // match args_v[1] {
+                //     "a" => {
+                //         self.advantage = true;
+                //         self.disadvantage = false;
+                //     }
+                //     "d" => {
+                //         self.disadvantage = true;
+                //         self.advantage = false;
+                //     }
+                //     _ => {
+                //         println!("WARN: invalid arg passed, only 'a' and 'd' are valid options");
+                //         println!("WARN: default values for adv/disadvantage set to false.");
+                //         self.advantage = false;
+                //         self.disadvantage = false;
+                //     }
+                // };
                 let mut arg = args_v[0];
                 if arg.contains('+') {
                     let arg_split: Vec<&str> = arg.split('+').collect();
@@ -261,23 +293,45 @@ mod tests {
         assert!(c.h_flag);
     }
     #[test]
-    fn advantage_works() {
-        let c = build_config(vec!["", "-h", "--help", "-a"]);
-        assert!(c.h_opt);
-        assert!(c.h_flag);
-        assert!(c.advantage);
-        assert!(!c.disadvantage);
+    fn keep_low_works() {
+        let c = build_config(vec!["", "-c", "2", "-kl"]);
+        assert!(!c.keep_high);
+        assert!(c.keep_low);
+        assert_eq!(c.keeping, 1);
+        assert_eq!(c.dropping, 0);
+        // TODO: fragile, these are defaults
+        // roll check vec/log len
     }
     #[test]
-    fn disadvantage_works() {
-        let c = build_config(vec!["", "-d"]);
-        assert!(c.disadvantage);
-        assert!(!c.advantage);
+    fn keep_low_n_works() {
+        let c = build_config(vec!["", "-c", "4", "-kl", "3"]);
+        assert!(!c.keep_high);
+        assert!(c.keep_low);
+        assert_eq!(c.keeping, 3);
+        assert_eq!(c.dropping, 0);
+    }
+    #[test]
+    fn keep_high_works() {
+        let c = build_config(vec!["", "-c", "2", "-kh"]);
+        assert!(c.keep_high);
+        assert!(!c.keep_low);
+        assert_eq!(c.keeping, 1);
+        assert_eq!(c.dropping, 0);
+        // TODO: fragile, these are defaults
+        // roll check vec/log len
+    }
+    #[test]
+    fn keep_high_n_works() {
+        let c = build_config(vec!["", "-c", "4", "-kh", "3"]);
+        assert!(c.keep_high);
+        assert!(!c.keep_low);
+        assert_eq!(c.keeping, 3);
+        assert_eq!(c.dropping, 0);
+        // roll check vec/log
     }
     #[test]
     fn sides_works() {
         let c = build_config(vec!["", "-d", "-s", "10"]);
-        assert!(c.disadvantage);
         assert_eq!(c.sides, 10);
     }
     #[test]
@@ -347,33 +401,34 @@ mod tests {
         assert_eq!(c.count, 3);
         assert_eq!(c.sides, 6);
     }
-    #[test]
-    fn interactive_advantage_works() {
-        let mut c = Config::default();
-        c.interact("d10 a".to_string());
-        assert_eq!(c.sides, 10);
-        assert!(c.advantage);
-    }
-    #[test]
-    fn interactive_disadvantage_works() {
-        let mut c = Config::default();
-        c.interact("d10 d".to_string());
-        assert_eq!(c.sides, 10);
-        assert!(c.disadvantage);
-    }
+    // TODO: obsolete
+    // #[test]
+    // fn interactive_advantage_works() {
+    //     let mut c = Config::default();
+    //     c.interact("d10 a".to_string());
+    //     assert_eq!(c.sides, 10);
+    //     assert!(c.advantage);
+    // }
+    // TODO: obsolete
+    // #[test]
+    // fn interactive_disadvantage_works() {
+    //     let mut c = Config::default();
+    //     c.interact("d10 d".to_string());
+    //     assert_eq!(c.sides, 10);
+    //     assert!(c.disadvantage);
+    // }
+    // FIX: fragile without adv/dis, refactor with keeping/dropping
     #[test]
     fn interactive_mix_and_match_works() {
         let mut c = Config::default();
-        c.interact("2d10+1 a".to_string());
+        c.interact("2d10+1".to_string());
         assert_eq!(c.sides, 10);
         assert_eq!(c.count, 2);
         assert_eq!(c.modifier, 1);
-        assert!(c.advantage);
-        c.interact("3d6-2 d".to_string());
+        c.interact("3d6-2".to_string());
         assert_eq!(c.count, 3);
         assert_eq!(c.sides, 6);
         assert_eq!(c.modifier, -2);
-        assert!(c.disadvantage);
         c.interact("d6".to_string());
         assert_eq!(c.count, 1);
         assert_eq!(c.sides, 6);
@@ -407,13 +462,15 @@ mod tests {
         assert_eq!(c.count, 1);
         assert_eq!(c.sides, 20);
     }
-    #[test]
-    fn bad_adv_dis_arg_fails_gracefully() {
-        let mut c = Config::default();
-        c.interact("2d10 b".to_string());
-        assert!(!c.advantage);
-        assert!(!c.disadvantage);
-    }
+    // TODO: obsolete
+    // #[test]
+    // fn bad_adv_dis_arg_fails_gracefully() {
+    //     let mut c = Config::default();
+    //     c.interact("2d10 b".to_string());
+    //     assert!(!c.advantage);
+    //     assert!(!c.disadvantage);
+    // }
+    // FIX: test fragile without adv/dis refactor for keeping/dropping
     #[test]
     fn bad_pos_modifier_2_arg_fails_gracefully() {
         let mut c = Config::default();
@@ -421,9 +478,8 @@ mod tests {
         assert_eq!(c.count, 2);
         assert_eq!(c.sides, 10);
         assert_eq!(c.modifier, 0);
-        assert!(!c.advantage);
-        assert!(!c.disadvantage);
     }
+    // FIX: test fragile without adv/dis refactor for keeping/dropping
     #[test]
     fn bad_neg_modifier_2_arg_fails_gracefully() {
         let mut c = Config::default();
@@ -431,16 +487,14 @@ mod tests {
         assert_eq!(c.count, 2);
         assert_eq!(c.sides, 10);
         assert_eq!(c.modifier, 0);
-        assert!(!c.advantage);
-        assert!(!c.disadvantage);
     }
+    // FIX: test fragile without adv/dis refactor for keeping/dropping
     #[test]
     fn bad_count_and_sides_fails_gracefully() {
         let mut c = Config::default();
         c.interact("xdx+1 a".to_string());
         assert_eq!(c.count, 1);
         assert_eq!(c.sides, 20);
-        assert!(c.advantage);
         assert_eq!(c.modifier, 1);
     }
     #[test]

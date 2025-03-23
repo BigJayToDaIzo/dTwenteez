@@ -4,6 +4,7 @@ use rand::Rng;
 #[derive(Debug)]
 pub struct Roll {
     pub final_roll: u32,
+    pub roll_vec: Vec<u32>,
     pub roll_log: String,
 }
 
@@ -16,32 +17,34 @@ impl Roll {
         let num_sides = c.sides;
         let mut roll_log = format!("{num_dice}d{num_sides} [ ");
 
-        if c.advantage {
-            for _ in 0..c.count {
-                let roll1 = rng.random_range(1..=c.sides);
-                let roll2 = rng.random_range(1..=c.sides);
-                let max = roll1.max(roll2) as i32;
-                let string_appendage = format!("[{roll1},{roll2}] max: {max} ");
-                rt_roll += max;
-                roll_log.push_str(&string_appendage);
-            }
-        } else if c.disadvantage {
-            for _ in 0..c.count {
-                let roll1 = rng.random_range(1..=c.sides);
-                let roll2 = rng.random_range(1..=c.sides);
-                let min = roll1.min(roll2) as i32;
-                let string_appendage = format!("[{roll1},{roll2}] min: {min} ");
-                rt_roll += min;
-                roll_log.push_str(&string_appendage);
-            }
-        } else {
-            for _ in 0..c.count {
-                let roll = rng.random_range(1..=c.sides) as i32;
-                rt_roll += roll;
-                let string_appendage = format!("{roll} ");
-                roll_log.push_str(&string_appendage);
-            }
+        // TODO: obsolete
+        // if c.advantage {
+        //     for _ in 0..c.count {
+        //         let roll1 = rng.random_range(1..=c.sides);
+        //         let roll2 = rng.random_range(1..=c.sides);
+        //         let max = roll1.max(roll2) as i32;
+        //         let string_appendage = format!("[{roll1},{roll2}] max: {max} ");
+        //         rt_roll += max;
+        //         roll_log.push_str(&string_appendage);
+        //     }
+        // // TODO: obsolete
+        // } else if c.disadvantage {
+        //     for _ in 0..c.count {
+        //         let roll1 = rng.random_range(1..=c.sides);
+        //         let roll2 = rng.random_range(1..=c.sides);
+        //         let min = roll1.min(roll2) as i32;
+        //         let string_appendage = format!("[{roll1},{roll2}] min: {min} ");
+        //         rt_roll += min;
+        //         roll_log.push_str(&string_appendage);
+        //     }
+        // } else {
+        for _ in 0..c.count {
+            let roll = rng.random_range(1..=c.sides) as i32;
+            rt_roll += roll;
+            let string_appendage = format!("{roll} ");
+            roll_log.push_str(&string_appendage);
         }
+        // }
         match c.modifier {
             i32::MIN..0 => {
                 let modifier = c.modifier;
@@ -66,6 +69,7 @@ impl Roll {
         }
         Roll {
             final_roll: rt_roll as u32,
+            roll_vec: vec![],
             roll_log,
         }
     }
@@ -156,40 +160,42 @@ mod test {
         let roll = Roll::new(&c);
         assert_eq!(roll.final_roll, 1);
     }
-    #[test]
-    fn advantage_log_works() {
-        // [ [1,2] max: 2 ] = 2
-        let c = build_config(vec!["", "-a"]);
-        let roll = Roll::new(&c);
-        let regex = Regex::new(
-            r"\d{1,2}?d\d{1,2} \[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] max: (?<max>\d{1,2}) \]",
-        )
-        .unwrap();
-        let Some(cap) = regex.captures(&roll.roll_log) else {
-            panic!("display didn't capture values")
-        };
-        assert_eq!(cap.len(), 4);
-        let max = cap["max"].parse::<u32>().unwrap();
-        let roll1 = cap["roll1"].parse::<u32>().unwrap();
-        let roll2 = cap["roll2"].parse::<u32>().unwrap();
-        assert!(max >= roll1 && max >= roll2);
-    }
-    #[test]
-    fn disadvantage_log_works() {
-        // [ [1,2] max: 2 ] = 2
-        let c = build_config(vec!["", "-d"]);
-        let roll = Roll::new(&c);
-        let regex = Regex::new(
-            r"\d{1,2}?d\d{1,2} \[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] min: (?<min>\d{1,2}) \]",
-        )
-        .unwrap();
-        let Some(cap) = regex.captures(&roll.roll_log) else {
-            panic!("display didn't capture values")
-        };
-        assert_eq!(cap.len(), 4);
-        let min = cap["min"].parse::<u32>().unwrap();
-        let roll1 = cap["roll1"].parse::<u32>().unwrap();
-        let roll2 = cap["roll2"].parse::<u32>().unwrap();
-        assert!(min <= roll1 || min <= roll2);
-    }
+    // FIX: obsolete, scrap adv/dis impl keeping/dropping
+    // #[test]
+    // fn advantage_log_works() {
+    //     // [ [1,2] max: 2 ] = 2
+    //     let c = build_config(vec!["", "-a"]);
+    //     let roll = Roll::new(&c);
+    //     let regex = Regex::new(
+    //         r"\d{1,2}?d\d{1,2} \[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] max: (?<max>\d{1,2}) \]",
+    //     )
+    //     .unwrap();
+    //     let Some(cap) = regex.captures(&roll.roll_log) else {
+    //         panic!("display didn't capture values")
+    //     };
+    //     assert_eq!(cap.len(), 4);
+    //     let max = cap["max"].parse::<u32>().unwrap();
+    //     let roll1 = cap["roll1"].parse::<u32>().unwrap();
+    //     let roll2 = cap["roll2"].parse::<u32>().unwrap();
+    //     assert!(max >= roll1 && max >= roll2);
+    // }
+    // FIX: obsolete, scrap adv/dis impl keeping/dropping
+    // #[test]
+    // fn disadvantage_log_works() {
+    //     // [ [1,2] max: 2 ] = 2
+    //     let c = build_config(vec!["", "-d"]);
+    //     let roll = Roll::new(&c);
+    //     let regex = Regex::new(
+    //         r"\d{1,2}?d\d{1,2} \[ \[(?<roll1>\d{1,2}),(?<roll2>\d{1,2})\] min: (?<min>\d{1,2}) \]",
+    //     )
+    //     .unwrap();
+    //     let Some(cap) = regex.captures(&roll.roll_log) else {
+    //         panic!("display didn't capture values")
+    //     };
+    //     assert_eq!(cap.len(), 4);
+    //     let min = cap["min"].parse::<u32>().unwrap();
+    //     let roll1 = cap["roll1"].parse::<u32>().unwrap();
+    //     let roll2 = cap["roll2"].parse::<u32>().unwrap();
+    //     assert!(min <= roll1 || min <= roll2);
+    // }
 }
