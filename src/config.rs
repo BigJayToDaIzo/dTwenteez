@@ -8,7 +8,6 @@ pub struct Config {
     pub count: u32,
     pub modifier: i32,
     pub keeping: u32,
-    pub dropping: u32,
     pub keep_high: bool,
     pub keep_low: bool,
 }
@@ -25,7 +24,6 @@ impl Config {
             h_opt: false,
             h_flag: false,
             keeping: 1,
-            dropping: 0,
             keep_high: true,
             keep_low: false,
             sides: 20,
@@ -37,7 +35,6 @@ impl Config {
         self.h_opt = false;
         self.h_flag = false;
         self.keeping = 1;
-        self.dropping = 0;
         self.sides = 20;
         self.count = 1;
         self.modifier = 0;
@@ -84,44 +81,64 @@ impl Config {
                         }
                     }
                 }
-                // fragile, -kh/kl/dh/dl must be last
+                // TODO: fragile, -kh/kl/dh/dl must be last
                 // parse int into -kh3 ? (yes)
+                // determine if trailing u32 in arg
                 x if x.contains("-kh") => {
-                    // determine if trailing u32 in arg
                     self.keep_high = true;
                     self.keep_low = false;
                     if let Some(arg) = args.next() {
                         if let Ok(keeping) = arg.parse::<u32>() {
-                            self.keeping = keeping;
-                            self.dropping = 0;
+                            if keeping <= self.count {
+                                self.keeping = keeping;
+                            } else {
+                                self.keeping = self.count;
+                            }
                         } else {
-                            println!("WARN: no integer to parse for -kh flag");
+                            println!("WARN: invalid integer passed to -kh flag");
                             println!("WARN: using default value of 1");
                             self.keeping = 1;
-                            self.dropping = 0;
                         }
                     }
                 }
-                // fragile, -kh/kl/dh/dl must be last
                 x if x.contains("-kl") => {
                     self.keep_low = true;
                     self.keep_high = false;
                     if let Some(arg) = args.next() {
                         if let Ok(keeping) = arg.parse::<u32>() {
-                            self.keeping = keeping;
-                            self.dropping = 0;
+                            if keeping <= self.count {
+                                self.keeping = keeping;
+                            } else {
+                                self.keeping = self.count;
+                            }
                         }
                     } else {
                         println!("WARN: no integer to parse for -kl flag");
                         println!("WARN: using default value of 1");
                         self.keeping = 1;
-                        self.dropping = 0;
                     }
                 }
-                "-dh" => {}
-                "-dl" => {}
+                x if x.contains("-dh") => {
+                    self.keep_low = true;
+                    self.keep_high = false;
+                    if let Some(arg) = args.next() {
+                        if let Ok(dropping) = arg.parse::<u32>() {
+                            if dropping > self.count {
+                                self.keeping = self.count;
+                            } else {
+                                self.keeping = self.count - dropping;
+                            }
+                        }
+                    } else {
+                        println!("WARN: no integer to parse for -dh flag");
+                        println!("WARN: using default value of 1");
+                        self.keeping = 1;
+                    }
+                }
+                x if x.contains("-dl") => {}
                 x => {
                     println!("arg string broken with invalid argument: {x}");
+                    // FIX: possible argument specific help
                     self.h_opt = true;
                 }
             }
@@ -205,22 +222,6 @@ d20 ** Astarion rolls 1d20 with no modifiers of any kind"
                 });
             }
             2 => {
-                // match args_v[1] {
-                //     "a" => {
-                //         self.advantage = true;
-                //         self.disadvantage = false;
-                //     }
-                //     "d" => {
-                //         self.disadvantage = true;
-                //         self.advantage = false;
-                //     }
-                //     _ => {
-                //         println!("WARN: invalid arg passed, only 'a' and 'd' are valid options");
-                //         println!("WARN: default values for adv/disadvantage set to false.");
-                //         self.advantage = false;
-                //         self.disadvantage = false;
-                //     }
-                // };
                 let mut arg = args_v[0];
                 if arg.contains('+') {
                     let arg_split: Vec<&str> = arg.split('+').collect();
@@ -273,7 +274,6 @@ mod tests {
         c.build(&mut args);
         c
     }
-
     #[test]
     fn new_works() {
         let c = Config::new();
@@ -298,7 +298,6 @@ mod tests {
         assert!(!c.keep_high);
         assert!(c.keep_low);
         assert_eq!(c.keeping, 1);
-        assert_eq!(c.dropping, 0);
         // TODO: fragile, these are defaults
         // roll check vec/log len
     }
@@ -308,7 +307,17 @@ mod tests {
         assert!(!c.keep_high);
         assert!(c.keep_low);
         assert_eq!(c.keeping, 3);
-        assert_eq!(c.dropping, 0);
+        // TODO: fragile, these are defaults
+        // roll check vec/log len
+    }
+    #[test]
+    fn keep_low_n_gt_sides_warns_and_keeps_one() {
+        let c = build_config(vec!["", "-c", "2", "-kl", "3"]);
+        assert!(!c.keep_high);
+        assert!(c.keep_low);
+        assert_eq!(c.keeping, 2);
+        // TODO: fragile, these are defaults
+        // roll check vec/log len
     }
     #[test]
     fn keep_high_works() {
@@ -316,7 +325,6 @@ mod tests {
         assert!(c.keep_high);
         assert!(!c.keep_low);
         assert_eq!(c.keeping, 1);
-        assert_eq!(c.dropping, 0);
         // TODO: fragile, these are defaults
         // roll check vec/log len
     }
@@ -326,9 +334,29 @@ mod tests {
         assert!(c.keep_high);
         assert!(!c.keep_low);
         assert_eq!(c.keeping, 3);
-        assert_eq!(c.dropping, 0);
         // roll check vec/log
     }
+    #[test]
+    fn keep_high_n_gt_sides_warns_and_keeps_one() {
+        let c = build_config(vec!["", "-c", "2", "-kh", "3"]);
+        assert!(c.keep_high);
+        assert!(!c.keep_low);
+        assert_eq!(c.keeping, 2);
+        // TODO: fragile, these are defaults
+        // roll check vec/log len
+    }
+    // TODO: drop_x
+    #[test]
+    fn drop_low_works() {
+        // let c = build_config(vec!["", "-c", "2", "-dl"]);
+    }
+    #[test]
+    fn drop_low_n_works() {}
+    #[test]
+    fn drop_high_works() {}
+    #[test]
+    fn drop_high_n_works() {}
+    // end TODO: drop+x
     #[test]
     fn sides_works() {
         let c = build_config(vec!["", "-d", "-s", "10"]);
